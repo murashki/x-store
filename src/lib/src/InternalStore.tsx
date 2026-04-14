@@ -184,13 +184,11 @@ export class InternalStore<
   };
 
   public update: Update<TStoreState> = (instanceKey, changes) => {
-    if (this.state[instanceKey] !== changes) {
-      this.state = { ...this.state, [instanceKey]: changes };
-      this.listeners[instanceKey].forEach((listener) => listener());
-      this.listenersAll.forEach((listener) => listener());
-      // TODO Убрать в логгер
-      console.log(`update [store: ${this.name}, instance: ${String(instanceKey)}]:`);
-      console.dir(this.state);
-    }
+    this.state = { ...this.state, [instanceKey]: changes };
+    this.listeners[instanceKey].forEach((listener) => listener());
+    this.listenersAll.forEach((listener) => listener());
+    // TODO Убрать в логгер
+    console.log(`update [store: ${this.name}, instance: ${String(instanceKey)}]:`);
+    console.dir(this.state);
   };
 }
