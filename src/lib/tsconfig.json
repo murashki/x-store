@@ -12,6 +12,7 @@
     /* Bundler mode */
     "allowImportingTsExtensions": true,
     "declaration": true,
+    "declarationDir": "./dist/@types",
     "emitDeclarationOnly": true,
     "jsx": "react-jsx",
     "moduleResolution": "bundler",

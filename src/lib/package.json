@@ -18,6 +18,6 @@
     "clear": "rm -rf dist",
     "prepublishOnly": "npm run build"
   },
-  "types": "dist/types",
+  "types": "dist/@types",
   "version": "0.1.0"
 }

@@ -17,7 +17,7 @@
     "use-sync-external-store": "^1.5.0",
     "vite": "^6.3.5"
   },
-  "name": "x-store",
+  "name": "beestate-main",
   "private": true,
   "scripts": {
     "build": "tsc -b && vite build",
