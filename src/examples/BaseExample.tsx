@@ -3,7 +3,7 @@ import React from 'react';
 
 import { createStore } from '../lib/src';
 import { useDispatcher } from '../lib/src';
-import { useState } from '../lib/src';
+import { useProp } from '../lib/src';
 import { useStore } from '../lib/src';
 
 type AppState = {
@@ -76,8 +76,8 @@ export const App = React.memo(function App() {
     return init();
   });
 
-  const formOpen = useState(appStore.formOpen);
-  const productName = useState(formStore.productName);
+  const formOpen = useProp(appStore.formOpen);
+  const productName = useProp(formStore.productName);
   const dispatchFormToggle = useDispatcher(appStore.formToggle);
 
   useEffect(() => {
@@ -109,7 +109,7 @@ export const App = React.memo(function App() {
 export const Form = React.memo(function Form() {
   console.log(`Form render`);
 
-  const productName = useState(formStore.productName);
+  const productName = useProp(formStore.productName);
   const dispatchProductNameChange = useDispatcher(formStore.productNameChange);
   const dispatchProductNameClear = useDispatcher(formStore.productNameClear);
 

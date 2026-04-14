@@ -12,8 +12,8 @@ import { type StoreState } from './types/index.tsx';
 import { INTERNAL_STORE_PROPS_ACCESSOR } from './constants.tsx';
 import { InternalStore } from './InternalStore.tsx';
 
-export function createUseStateAll(storeRegistry: StoreRegistry) {
-  return function useStateAll<
+export function createUsePropAll(storeRegistry: StoreRegistry) {
+  return function usePropAll<
     TStoreState extends StoreState = StoreState,
     TReducerMap extends ReducerMap<TStoreState> = ReducerMap<TStoreState>,
     TStateName extends keyof TStoreState = keyof TStoreState,

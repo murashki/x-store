@@ -9,7 +9,7 @@ export { StoreProvider } from './StoreProvider.tsx';
 
 export const {
   useDispatcher,
-  useState,
-  useStateAll,
+  useProp,
+  usePropAll,
   useStore,
 } = createStoreRegistry();

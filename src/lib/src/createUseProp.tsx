@@ -13,8 +13,8 @@ import { DEFAULT_INSTANCE_KEY } from './constants.tsx';
 import { INTERNAL_STORE_PROPS_ACCESSOR } from './constants.tsx';
 import { InternalStore } from './InternalStore.tsx';
 
-export function createUseState(storeRegistry: StoreRegistry) {
-  return function useState<
+export function createUseProp(storeRegistry: StoreRegistry) {
+  return function useProp<
     TStoreState extends StoreState = StoreState,
     TReducerMap extends ReducerMap<TStoreState> = ReducerMap<TStoreState>,
     TStateName extends keyof TStoreState = keyof TStoreState,
