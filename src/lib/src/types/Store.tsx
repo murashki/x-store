@@ -18,10 +18,14 @@ export type Store<
     [`$$reset`]: void;
   }
   & {
-    [TKey in Extract<keyof TStoreState, string>]: StateLink<TStoreName, TStoreState, TReducerMap[`$$init`], TReducerMap[`$$reset`], TKey>;
+    [TKey in keyof TStoreState]: TKey extends string
+      ? StateLink<TStoreName, TStoreState, TReducerMap[`$$init`], TReducerMap[`$$reset`], TKey>
+      : never;
   }
   & {
-    [TKey in Extract<keyof TReducerMap, string>]: TKey extends keyof TStoreState
-      ? never
-      : ReducerLink<TStoreName, TStoreState, TReducerMap[`$$init`], TReducerMap[`$$reset`], TKey, TReducerMap[TKey]>;
+    [TKey in keyof TReducerMap]: TKey extends string
+      ? TKey extends keyof TStoreState
+        ? never
+        : ReducerLink<TStoreName, TStoreState, TReducerMap[`$$init`], TReducerMap[`$$reset`], TKey, TReducerMap[TKey]>
+      : never;
   };
