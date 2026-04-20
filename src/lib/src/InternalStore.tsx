@@ -179,16 +179,17 @@ export class InternalStore<
   };
 
   public dispatch: Dispatch<TStoreState> = (instanceKey, payload, reducer) => {
-    const changes = reducer(this.state[instanceKey], payload);
+    const instanceState = this.state[instanceKey];
+    const changes = reducer(instanceState, payload);
     this.update(instanceKey, changes);
+    // TODO Убрать в логгер
+    console.log(`dispatch [store: ${this.name}, instance: ${String(instanceKey)}]:`);
+    console.dir({ payload: changes, [`prev state`]: instanceState, [`next state`]: changes });
   };
 
   public update: Update<TStoreState> = (instanceKey, changes) => {
     this.state = { ...this.state, [instanceKey]: changes };
     this.listeners[instanceKey].forEach((listener) => listener());
     this.listenersAll.forEach((listener) => listener());
-    // TODO Убрать в логгер
-    console.log(`update [store: ${this.name}, instance: ${String(instanceKey)}]:`);
-    console.dir(this.state);
   };
 }
