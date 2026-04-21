@@ -183,8 +183,8 @@ export class InternalStore<
     const changes = reducer(instanceState, payload);
     this.update(instanceKey, changes);
     // TODO Убрать в логгер
-    console.log(`dispatch [store: ${this.name}, instance: ${String(instanceKey)}]:`);
-    console.dir({ payload: changes, [`prev state`]: instanceState, [`next state`]: changes });
+    console.log(`dispatch [store: ${this.name}, instance: ${String(instanceKey)}, action: ${reducer.name}]:`);
+    console.dir({ payload, [`prev state`]: instanceState, [`next state`]: changes });
   };
 
   public update: Update<TStoreState> = (instanceKey, changes) => {
