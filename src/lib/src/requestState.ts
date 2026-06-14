@@ -1,10 +1,10 @@
-import type { RequestAbortedState } from './types/RequestState/RequestAbortedState.ts';
-import type { RequestFulfilledState } from './types/RequestState/RequestFulfilledState.ts';
-import type { RequestIdleState } from './types/RequestState/RequestIdleState.ts';
-import type { RequestPendingState } from './types/RequestState/RequestPendingState.ts';
-export type { RequestState } from './types/RequestState.ts';
-import type { RequestRejectedState } from './types/RequestState/RequestRejectedState.ts';
-import type { RequestStateMeta } from './types/RequestStateMeta.ts';
+import type { RequestAbortedState } from './types/RequestState/RequestAbortedState.tsx';
+import type { RequestFulfilledState } from './types/RequestState/RequestFulfilledState.tsx';
+import type { RequestIdleState } from './types/RequestState/RequestIdleState.tsx';
+import type { RequestPendingState } from './types/RequestState/RequestPendingState.tsx';
+export type { RequestState } from './types/RequestState.tsx';
+import type { RequestRejectedState } from './types/RequestState/RequestRejectedState.tsx';
+import type { RequestStateMeta } from './types/RequestStateMeta.tsx';
 import { requestStateDefault } from './requestStateDefault.ts';
 import { requestStatus } from './requestStatus.ts';
 

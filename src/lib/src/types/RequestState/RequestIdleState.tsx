@@ -1,5 +1,5 @@
 import type { requestStatus } from '../../requestStatus.ts';
-import type { RequestStateMeta } from '../RequestStateMeta.ts';
+import type { RequestStateMeta } from '../RequestStateMeta.tsx';
 
 export type RequestIdleState<
   TMeta extends RequestStateMeta = RequestStateMeta,
