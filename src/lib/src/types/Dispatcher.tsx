@@ -1,7 +1,7 @@
-import { type InstanceKey } from './';
-import { type Reducer } from './';
-import { type ReducerPayload } from './';
-import { type StoreState } from './';
+import type { InstanceKey } from './';
+import type { Reducer } from './';
+import type { ReducerPayload } from './';
+import type { StoreState } from './';
 
 export type Dispatcher<
   TStoreState extends StoreState = StoreState,

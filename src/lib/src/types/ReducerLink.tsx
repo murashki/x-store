@@ -1,8 +1,8 @@
 import { INTERNAL_STORE_PROPS_ACCESSOR } from '../constants.tsx';
 import { REDUCER_LINK } from '../constants.tsx';
-import { type InternalStoreProps } from './';
-import { type Reducer } from './';
-import { type StoreState } from './';
+import type { InternalStoreProps } from './';
+import type { Reducer } from './';
+import type { StoreState } from './';
 
 export type ReducerLink<
   TStoreName extends string = string,

@@ -1,5 +1,5 @@
-import { type Reducer } from './';
-import { type StoreState } from './';
+import type { Reducer } from './';
+import type { StoreState } from './';
 
 export type ReducerMap<
   TStoreState extends StoreState = StoreState,

@@ -2,13 +2,13 @@ import { useCallback } from 'react';
 import { useRef } from 'react';
 import { useSyncExternalStoreWithSelector } from 'use-sync-external-store/with-selector';
 
-import { type InitPayload } from './types/index.tsx';
-import { type InstanceKey } from './types/index.tsx';
-import { type ReducerMap } from './types/index.tsx';
-import { type ResetPayload } from './types/index.tsx';
-import { type StateLink } from './types/index.tsx';
-import { type StoreRegistry } from './types/index.tsx';
-import { type StoreState } from './types/index.tsx';
+import type { InitPayload } from './types/index.tsx';
+import type { InstanceKey } from './types/index.tsx';
+import type { ReducerMap } from './types/index.tsx';
+import type { ResetPayload } from './types/index.tsx';
+import type { StateLink } from './types/index.tsx';
+import type { StoreRegistry } from './types/index.tsx';
+import type { StoreState } from './types/index.tsx';
 import { INTERNAL_STORE_PROPS_ACCESSOR } from './constants.tsx';
 import { InternalStore } from './InternalStore.tsx';
 

@@ -1,6 +1,6 @@
-import { type Payload } from './';
-import { type Reducer } from './';
-import { type StoreState } from './';
+import type { Payload } from './';
+import type { Reducer } from './';
+import type { StoreState } from './';
 
 export type ReducerPayload<
   TStoreState extends StoreState = StoreState,

@@ -1,7 +1,7 @@
-import { type InstanceKey } from './types/index.tsx';
-import { type Payload } from './types/index.tsx';
-import { type Reducer } from './types/index.tsx';
-import { type StoreState } from './types/index.tsx';
+import type { InstanceKey } from './types/index.tsx';
+import type { Payload } from './types/index.tsx';
+import type { Reducer } from './types/index.tsx';
+import type { StoreState } from './types/index.tsx';
 
 export type Dispatch<
   TStoreState extends StoreState = StoreState,
