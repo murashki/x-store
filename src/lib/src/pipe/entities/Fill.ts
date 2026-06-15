@@ -37,7 +37,7 @@ export type Retire = {
   (): void;
 };
 
-export const FINAL_TYPE = Symbol('FINAL');
+export const FINAL_TYPE = Symbol(`FINAL`);
 
 export type Final<
   TValue extends any = any,

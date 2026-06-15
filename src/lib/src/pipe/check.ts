@@ -50,15 +50,15 @@ export function getIsControlInstruction(adjunct: Adjunct): adjunct is ControlIns
   return getIsInstruction(adjunct) && adjunct.instructionType === CONTROL_INSTRUCTION_TYPE;
 }
 
-export function getIsStreamEmitInstruction(adjunct: Adjunct): adjunct is Omit<ControlInstruction, 'createStreamEmitHandler'> & { createStreamEmitHandler: NonNullable<ControlInstruction['createStreamEmitHandler']> } {
+export function getIsStreamEmitInstruction(adjunct: Adjunct): adjunct is Omit<ControlInstruction, `createStreamEmitHandler`> & { createStreamEmitHandler: NonNullable<ControlInstruction[`createStreamEmitHandler`]> } {
   return getIsControlInstruction(adjunct) && !! adjunct.createStreamEmitHandler;
 }
 
-export function getIsStreamTerminateInstruction(adjunct: Adjunct): adjunct is Omit<ControlInstruction, 'createStreamTerminateHandler'> & { createStreamTerminateHandler: NonNullable<ControlInstruction['createStreamTerminateHandler']> } {
+export function getIsStreamTerminateInstruction(adjunct: Adjunct): adjunct is Omit<ControlInstruction, `createStreamTerminateHandler`> & { createStreamTerminateHandler: NonNullable<ControlInstruction[`createStreamTerminateHandler`]> } {
   return getIsControlInstruction(adjunct) && !! adjunct.createStreamTerminateHandler;
 }
 
-export function getIsForkInstruction(adjunct: Adjunct): adjunct is Omit<ControlInstruction, 'createStreamTerminateHandler'> & { createStreamTerminateHandler: NonNullable<ControlInstruction['createStreamTerminateHandler']> } {
+export function getIsForkInstruction(adjunct: Adjunct): adjunct is Omit<ControlInstruction, `createStreamTerminateHandler`> & { createStreamTerminateHandler: NonNullable<ControlInstruction[`createStreamTerminateHandler`]> } {
   return getIsControlInstruction(adjunct) && adjunct.controlInstructionType === FORK_INSTRUCTION_TYPE;
 }
 

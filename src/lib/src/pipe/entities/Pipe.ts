@@ -7,7 +7,7 @@ import type { CreateDebugger } from './Instruction';
 import type { ParentPipes } from './ParentPipe';
 import type { StreamGroupRegistry } from './StreamGroup';
 
-export const PIPE_ENTITY_TYPE = Symbol('PIPE_ENTITY_TYPE');
+export const PIPE_ENTITY_TYPE = Symbol(`PIPE_ENTITY_TYPE`);
 
 export type BasePipe<
   TValue extends any = any,

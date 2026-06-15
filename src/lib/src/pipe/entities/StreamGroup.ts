@@ -4,10 +4,10 @@ import type { BasePipe } from './Pipe';
 import type { Stream } from './Stream';
 
 export const streamGroupStatus = {
-  open: 'open',
-  closed: 'closed',
-  retired: 'retired',
-  deleted: 'deleted',
+  open: `open`,
+  closed: `closed`,
+  retired: `retired`,
+  deleted: `deleted`,
 } as const;
 
 export type StreamGroupStatus = (typeof streamGroupStatus)[keyof typeof streamGroupStatus];

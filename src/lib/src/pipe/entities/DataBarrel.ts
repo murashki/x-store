@@ -1,15 +1,15 @@
 import type { Stream } from './Stream';
 
 export const dataType = {
-  data: 'data',
-  error: 'error',
+  data: `data`,
+  error: `error`,
 } as const;
 
 export type DataType = (typeof dataType)[keyof typeof dataType];
 
 export const dataBarrelStatus = {
-  active: 'active',
-  deleted: 'deleted',
+  active: `active`,
+  deleted: `deleted`,
 } as const;
 
 export type DataBarrelStatus = (typeof dataBarrelStatus)[keyof typeof dataBarrelStatus];

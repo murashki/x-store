@@ -25,10 +25,10 @@ function deepCopyInner<
 
     return nextData;
   }
-  else if (typeof data === 'function') {
+  else if (typeof data === `function`) {
     return (() => {}) as TData;
   }
-  else if (typeof data === 'object') {
+  else if (typeof data === `object`) {
     const nextData = {} as TData;
     const nextCircleHack = [...circleHack, [data, nextData]];
 

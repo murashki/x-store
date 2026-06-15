@@ -34,7 +34,7 @@ export function createDisplayNameInstruction(displayName: string): DisplayNameIn
 
 export function createControlInstruction<
   TControlInstructionType extends symbol = symbol,
->(controlInstructionType: TControlInstructionType, props: Pick<ControlInstruction, 'createStreamEmitHandler' | 'createStreamTerminateHandler'>): ControlInstruction<TControlInstructionType> {
+>(controlInstructionType: TControlInstructionType, props: Pick<ControlInstruction, `createStreamEmitHandler` | `createStreamTerminateHandler`>): ControlInstruction<TControlInstructionType> {
   return {
     ...createInstruction(CONTROL_INSTRUCTION_TYPE),
     controlInstructionType,
