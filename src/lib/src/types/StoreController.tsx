@@ -1,8 +1,8 @@
 import { InternalStore } from '../InternalStore.tsx';
-import type { InstanceKey } from './';
-import type { ReducerMap } from './';
-import type { StoreControllerInstance } from './StoreControllerInstance.tsx';
-import type { StoreState } from './';
+import type { InstanceKey } from './index.tsx';
+import type { ReducerMap } from './index.tsx';
+import type { StoreControllerInstance } from './index.tsx';
+import type { StoreState } from './index.tsx';
 
 export type StoreController<
   TStoreState extends StoreState = StoreState,

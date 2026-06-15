@@ -11,8 +11,8 @@ export { DESTROY } from './constants.tsx';
 export { createStore } from './createStore.tsx';
 export { createStoreRegistry } from './createStoreRegistry.tsx';
 export { InternalStore } from './InternalStore.tsx';
-export { requestState } from './requestState.ts';
-export { requestStatus } from './requestStatus.ts';
+export { requestState } from './requestState.tsx';
+export { requestStatus } from './requestStatus.tsx';
 export { StoreProvider } from './StoreProvider.tsx';
 
 export const {

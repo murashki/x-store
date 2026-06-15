@@ -5,8 +5,8 @@ import type { RequestPendingState } from './types/RequestState/RequestPendingSta
 export type { RequestState } from './types/RequestState.tsx';
 import type { RequestRejectedState } from './types/RequestState/RequestRejectedState.tsx';
 import type { RequestStateMeta } from './types/RequestStateMeta.tsx';
-import { requestStateDefault } from './requestStateDefault.ts';
-import { requestStatus } from './requestStatus.ts';
+import { requestStateDefault } from './requestStateDefault.tsx';
+import { requestStatus } from './requestStatus.tsx';
 
 export const requestState = {
   idle: <

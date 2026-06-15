@@ -1,6 +1,6 @@
-import type { ReducerMap } from './';
-import type { ReducerPayload } from './';
-import type { StoreState } from './';
+import type { ReducerMap } from './index.tsx';
+import type { ReducerPayload } from './index.tsx';
+import type { StoreState } from './index.tsx';
 
 export type InitPayload<
   TStoreState extends StoreState = StoreState,

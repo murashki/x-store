@@ -1,5 +1,5 @@
 import { STORE_INSTANCE_UNREGISTERED } from '../constants.tsx';
-import type { Payload } from './';
+import type { Payload } from './index.tsx';
 
 export type ResetInstance<
   TPayload extends void | Payload = void | Payload,

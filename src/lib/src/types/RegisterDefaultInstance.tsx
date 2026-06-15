@@ -1,6 +1,6 @@
 import { STORE_INSTANCE_UNREGISTERED } from '../constants.tsx';
-import type { InitInstance } from './';
-import type { Payload } from './';
+import type { InitInstance } from './index.tsx';
+import type { Payload } from './index.tsx';
 
 export type RegisterDefaultInstance<
   TInitPayload extends void | Payload = void | Payload,

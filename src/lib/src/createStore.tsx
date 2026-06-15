@@ -38,8 +38,8 @@ export function createStore<
   const context = React.createContext<null | InstanceKey>(null);
 
   const internalStoreProps: InternalStoreProps<TStoreName, TStoreState, TReducerMap[`$$init`], TReducerMap[`$$reset`]> = {
-    [`$$init`]: reducers[`$$init`] as Reducer<TStoreState>,
-    [`$$reset`]: reducers[`$$reset`] as Reducer<TStoreState>,
+    $$init: reducers.$$init as Reducer<TStoreState>,
+    $$reset: reducers.$$reset as Reducer<TStoreState>,
     context,
     initialState,
     name,

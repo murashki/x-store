@@ -9,11 +9,12 @@ import type { ResetPayload } from './types/index.tsx';
 import type { StateLink } from './types/index.tsx';
 import type { StoreRegistry } from './types/index.tsx';
 import type { StoreState } from './types/index.tsx';
+import type { UseProp } from './types/index.tsx';
 import { DEFAULT_INSTANCE_KEY } from './constants.tsx';
 import { INTERNAL_STORE_PROPS_ACCESSOR } from './constants.tsx';
 import { InternalStore } from './InternalStore.tsx';
 
-export function createUseProp(storeRegistry: StoreRegistry) {
+export function createUseProp(storeRegistry: StoreRegistry): UseProp {
   return function useProp<
     TStoreState extends StoreState = StoreState,
     TReducerMap extends ReducerMap<TStoreState> = ReducerMap<TStoreState>,

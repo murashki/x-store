@@ -1,4 +1,4 @@
-import type { requestStatus } from '../../requestStatus.ts';
+import type { requestStatus } from '../../requestStatus.tsx';
 import type { RequestStateMeta } from '../RequestStateMeta.tsx';
 
 export type RequestRejectedState<
