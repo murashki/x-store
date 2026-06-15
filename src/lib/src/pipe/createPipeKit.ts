@@ -1,28 +1,24 @@
 import { getIsDataBarrelDeleted } from './check';
-import { getIsDebugInstruction } from './check';
 import { getIsFinal } from './check';
-import { getIsForkInstruction } from './check';
-import { getIsInstructionWithDisplayName } from './check';
-import { getIsPipe } from './check';
 import { getIsPipeWithCreateDebugger } from './check';
-import { getIsStreamEmitInstruction } from './check';
 import { getIsStreamGroupClosed } from './check';
 import { getIsStreamGroupDeleted } from './check';
 import { getIsStreamGroupFulfilled } from './check';
 import { getIsStreamGroupOpen } from './check';
 import { getIsStreamGroupRetired } from './check';
-import { getIsStreamTerminateInstruction } from './check';
 import { deepCopy } from './deepCopy.env-detect.main';
-import type { Adjunct } from './entities';
 import type { BasePipe } from './entities';
 import type { CommonPipeState } from './entities';
+import type { CreateDebugger } from './entities';
 import type { CreateFill } from './entities';
+import type { DataBarrel } from './entities';
 import type { DataPipe } from './entities';
+import type { DataType } from './entities';
 import type { Debugger } from './entities';
 import type { DownstreamConnection } from './entities';
-import type { DataBarrel } from './entities';
-import type { DataType } from './entities';
 import type { ForkInstruction } from './entities';
+import type { HandleEmitStream } from './entities';
+import type { HandleTerminateStream } from './entities';
 import type { LatestInstruction } from './entities';
 import type { LeadingInstruction } from './entities';
 import type { OnceInstruction } from './entities';
@@ -35,23 +31,39 @@ import type { Stream } from './entities';
 import type { StreamGroup } from './entities';
 import type { StreamGroupMembers } from './entities';
 import type { StreamGroupValues } from './entities';
+import { dataBarrelStatus } from './entities';
+import { dataType } from './entities';
 import { FORK_INSTRUCTION_TYPE } from './entities';
 import { LATEST_INSTRUCTION_TYPE } from './entities';
 import { LEADING_INSTRUCTION_TYPE } from './entities';
 import { ONCE_INSTRUCTION_TYPE } from './entities';
 import { PIPE_ENTITY_TYPE } from './entities';
-import { dataType } from './entities';
-import { dataBarrelStatus } from "./entities";
 import { streamGroupStatus } from './entities';
 import { LibLogicError } from './Error';
 import { UserLogicError } from './Error';
 import { createControlInstruction } from './instruction';
 
-export function createPipeKit(createFill: CreateFill, adjuncts: Adjunct[]): PipeKit {
+export type CreatePipeKitOptions = {
+  adjuncts: BasePipe[];
+  createDebugger?: CreateDebugger;
+  createFill: CreateFill;
+  createStreamEmitHandler?: () => HandleEmitStream;
+  createStreamTerminateHandler?: () => HandleTerminateStream;
+  displayName?: string;
+  fork?: boolean;
+};
+
+export function createPipeKit({
+  adjuncts,
+  createFill,
+  createStreamEmitHandler,
+  createStreamTerminateHandler,
+  ...opts
+}: CreatePipeKitOptions): PipeKit {
   // TODO We need to add a pipe state status (`active` and `deleted`) and check in `checkPipeState` if it has an stream groups
 
   const pipeState: PipeState = {
-    parentPipes: adjuncts.filter(getIsPipe),
+    parentPipes: adjuncts,
     streamGroupRegistry: {},
     dataPipe: {
       // TODO Should create only in `import.meta.env.DEV`
@@ -65,8 +77,8 @@ export function createPipeKit(createFill: CreateFill, adjuncts: Adjunct[]): Pipe
     },
   };
 
-  const streamEmitHandler = adjuncts.findLast(getIsStreamEmitInstruction)?.createStreamEmitHandler();
-  const streamTerminateHandler = adjuncts.findLast(getIsStreamTerminateInstruction)?.createStreamTerminateHandler();
+  const streamEmitHandler = createStreamEmitHandler?.();
+  const streamTerminateHandler = createStreamTerminateHandler?.();
 
   // TODO `UserLogicError` and `LibLogicError` should not just log an error in console, but also throw an error, possibly using an `emitError`
 
@@ -253,10 +265,8 @@ export function createPipeKit(createFill: CreateFill, adjuncts: Adjunct[]): Pipe
   const dataPipe = createDataPipe(pipeState.dataPipe, pipeState.errorPipe);
 
   if (import.meta.env.DEV) {
-    const instructionWithDisplayName = adjuncts.findLast(getIsInstructionWithDisplayName);
-    const createDebugger = adjuncts.findLast(getIsDebugInstruction)?.createDebugger ?? adjuncts.findLast(getIsPipeWithCreateDebugger)?.createDebugger;
-
-    const displayName = pipeState.displayName = instructionWithDisplayName?.displayName || fill.displayName || 'Unknown';
+    const createDebugger = opts.createDebugger ?? adjuncts.findLast(getIsPipeWithCreateDebugger)?.createDebugger;
+    const displayName = pipeState.displayName = opts.displayName || fill.displayName || 'Unknown';
 
     debug = createDebugger?.(displayName) ?? null;
 
@@ -293,7 +303,7 @@ export function createPipeKit(createFill: CreateFill, adjuncts: Adjunct[]): Pipe
     streamGroup.retire = userRetire ?? null;
   }
 
-  const controlled = !! pipeState.parentPipes.length || !! adjuncts.filter(getIsForkInstruction).length;
+  const controlled = !! pipeState.parentPipes.length || !! opts.fork;
 
   return [dataPipe, handleTerminateAll, controlled];
 }
