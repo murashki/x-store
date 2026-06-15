@@ -188,10 +188,10 @@ import { createStore } from '../src/index.tsx';
     [`$$reset`]: (state) => state,
     reducer: (state) => state,
   });
-  ((_reducer: void) => null)(store[`$$init`]);
-  ((_reducer: void) => null)(store[`$$reset`]);
+  ((_value: void) => null)(store[`$$init`]);
+  ((_value: void) => null)(store[`$$reset`]);
   // @ts-expect-error
-  ((_reducer: void) => null)(store.prop);
+  ((_value: void) => null)(store.prop);
   // @ts-expect-error
-  ((_reducer: void) => null)(store.reducer);
+  ((_value: void) => null)(store.reducer);
 }
