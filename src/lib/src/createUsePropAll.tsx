@@ -36,7 +36,7 @@ export function createUsePropAll(storeRegistry: StoreRegistry): UsePropAll {
     }, [internalStore]);
 
     const getSnapshot = useCallback(() => {
-      return internalStore.getSnapshotAll();
+      return internalStore.getStateAll();
     }, [internalStore]);
 
     const selector = useCallback((state: Record<string | symbol, TStoreState>) => {
@@ -73,7 +73,7 @@ export function createUsePropAll(storeRegistry: StoreRegistry): UsePropAll {
     return useSyncExternalStoreWithSelector(
       subscribe,
       getSnapshot,
-      getSnapshot,
+      null,
       selector,
     );
   };

@@ -1,6 +1,8 @@
 // import { useCallback } from 'react';
 // import { useContext } from 'react';
 // import { useSyncExternalStoreWithSelector } from 'use-sync-external-store/with-selector';
+// import type { ReducerLink } from './types/index.tsx';
+// import type { Reducer } from './types/index.tsx';
 //
 // import type { InstanceKey } from './types/index.tsx';
 // import type { InitPayload } from './types/index.tsx';
@@ -19,10 +21,11 @@
 //   return function useLatest<
 //     TStoreState extends StoreState = StoreState,
 //     TReducerMap extends ReducerMap<TStoreState> = ReducerMap<TStoreState>,
-//     TStateName extends RequestStateStoreKey<TStoreState> = RequestStateStoreKey<TStoreState>,
+//     TReducerName extends string = string,
+//     TReducer extends Reducer<TStoreState, any> = Reducer<TStoreState, any>,
 //   >(
 //     exec: () => void,
-//     stateLink: StateLink<string, TStoreState, TReducerMap[`$$init`], TReducerMap[`$$reset`], TStateName>,
+//     reducerLink: ReducerLink<string, TStoreState, TReducerMap[`$$init`], TReducerMap[`$$reset`], TReducerName, TReducer>,
 //     instanceKey?: InstanceKey,
 //   ): TStoreState[TStateName] {
 //     const requestState = useProp(stateLink, instanceKey);

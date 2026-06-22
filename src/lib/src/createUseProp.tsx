@@ -44,7 +44,7 @@ export function createUseProp(storeRegistry: StoreRegistry): UseProp {
     }, [actualInstanceKey, internalStore]);
 
     const getSnapshot = useCallback(() => {
-      return internalStore.getSnapshot(actualInstanceKey);
+      return internalStore.getState(actualInstanceKey);
     }, [actualInstanceKey, internalStore]);
 
     const selector = useCallback((state: TStoreState) => {
@@ -54,7 +54,7 @@ export function createUseProp(storeRegistry: StoreRegistry): UseProp {
     return useSyncExternalStoreWithSelector(
       subscribe,
       getSnapshot,
-      getSnapshot,
+      null,
       selector,
     );
   };
