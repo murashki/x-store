@@ -26,8 +26,8 @@ export function createUseStore(storeRegistry: StoreRegistry) {
   function useStore<
     TStoreState extends StoreState = StoreState,
     TReducerMap extends ReducerMap<TStoreState> = ReducerMap<TStoreState>,
-    TInitPayload extends InitPayload<TStoreState, TReducerMap> = InitPayload<TStoreState, TReducerMap>,
-    TResetPayload extends ResetPayload<TStoreState, TReducerMap> = ResetPayload<TStoreState, TReducerMap>,
+    TInitPayload extends InitPayload<TReducerMap> = InitPayload<TReducerMap>,
+    TResetPayload extends ResetPayload<TReducerMap> = ResetPayload<TReducerMap>,
   >(
     store: Store<string, TStoreState, TReducerMap>,
     registerInstance: RegisterDefaultInstance<TInitPayload, TResetPayload>,
@@ -36,8 +36,8 @@ export function createUseStore(storeRegistry: StoreRegistry) {
   function useStore<
     TStoreState extends StoreState = StoreState,
     TReducerMap extends ReducerMap<TStoreState> = ReducerMap<TStoreState>,
-    TInitPayload extends InitPayload<TStoreState, TReducerMap> = InitPayload<TStoreState, TReducerMap>,
-    TResetPayload extends ResetPayload<TStoreState, TReducerMap> = ResetPayload<TStoreState, TReducerMap>,
+    TInitPayload extends InitPayload<TReducerMap> = InitPayload<TReducerMap>,
+    TResetPayload extends ResetPayload<TReducerMap> = ResetPayload<TReducerMap>,
   >(
     store: Store<string, TStoreState, TReducerMap>,
     instanceKeys: InstanceKey[],
@@ -47,8 +47,8 @@ export function createUseStore(storeRegistry: StoreRegistry) {
   function useStore<
     TStoreState extends StoreState = StoreState,
     TReducerMap extends ReducerMap<TStoreState> = ReducerMap<TStoreState>,
-    TInitPayload extends InitPayload<TStoreState, TReducerMap> = InitPayload<TStoreState, TReducerMap>,
-    TResetPayload extends ResetPayload<TStoreState, TReducerMap> = ResetPayload<TStoreState, TReducerMap>,
+    TInitPayload extends InitPayload<TReducerMap> = InitPayload<TReducerMap>,
+    TResetPayload extends ResetPayload<TReducerMap> = ResetPayload<TReducerMap>,
   >(
     store: Store<string, TStoreState, TReducerMap>,
     ...args: (InstanceKey[] | RegisterInstance<TInitPayload, TResetPayload> | RegisterDefaultInstance<TInitPayload, TResetPayload>)[]
@@ -80,11 +80,11 @@ export function createUseStore(storeRegistry: StoreRegistry) {
           if ( ! initInstances[instanceKey]) {
             const ownerKey = ownerKeyRef.current.ownerKey;
             const initInstance = (initPayload: TInitPayload) => {
-              const internalStoreProps = store[INTERNAL_STORE_PROPS_ACCESSOR] as InternalStoreProps<string, TStoreState, TReducerMap[`$$init`], TReducerMap[`$$reset`]>;
+              const internalStoreProps = store[INTERNAL_STORE_PROPS_ACCESSOR] as InternalStoreProps<string, TStoreState, TReducerMap>;
 
               let storeController = storeRegistry[internalStoreProps.uniqKey] as StoreController<TStoreState, TReducerMap>;
               if ( ! storeController) {
-                const internalStore = new InternalStore<TStoreState, TInitPayload, TResetPayload>(internalStoreProps.name);
+                const internalStore = new InternalStore<TStoreState, TReducerMap>(internalStoreProps.name);
                 storeController = { internalStore, instances: {} };
                 storeRegistry[internalStoreProps.uniqKey] = storeController as StoreController;
                 // TODO Убрать в логгер

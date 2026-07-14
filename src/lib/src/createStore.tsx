@@ -22,7 +22,7 @@ type CheckReducerMap<
       : TReducerMap[TKey] extends (state: any, payload: infer TPayload) => any
         ? TPayload extends Payload
           ? TReducerMap[TKey]
-          : Reducer<TStoreState>
+          : void
         : void;
 };
 
@@ -37,7 +37,7 @@ export function createStore<
 ): Store<TStoreName, TStoreState, TReducerMap> {
   const context = React.createContext<null | InstanceKey>(null);
 
-  const internalStoreProps: InternalStoreProps<TStoreName, TStoreState, TReducerMap[`$$init`], TReducerMap[`$$reset`]> = {
+  const internalStoreProps: InternalStoreProps<TStoreName, TStoreState, TReducerMap> = {
     $$init: reducers.$$init as Reducer<TStoreState>,
     $$reset: reducers.$$reset as Reducer<TStoreState>,
     context,

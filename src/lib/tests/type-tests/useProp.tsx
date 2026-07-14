@@ -1,5 +1,5 @@
-import { createStore } from '../src/index.tsx';
-import { createStoreRegistry } from '../src/index.tsx';
+import { createStore } from '../../src';
+import { createStoreRegistry } from '../../src';
 
 {
   const { useProp } = createStoreRegistry();

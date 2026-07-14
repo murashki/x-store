@@ -1,4 +1,4 @@
-import { createStore } from '../src/index.tsx';
+import { createStore } from '../../src';
 
 {
   // @ts-expect-error

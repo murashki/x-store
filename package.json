@@ -25,7 +25,8 @@
     "build": "tsc -b && vite build",
     "dev": "vite",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "ts-lint:watch": "tsc --noEmit --watch --project ./tsconfig.json"
   },
   "type": "module",
   "version": "0.0.0"

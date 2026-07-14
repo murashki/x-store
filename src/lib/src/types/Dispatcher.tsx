@@ -1,17 +1,14 @@
 import type { InstanceKey } from './index.tsx';
-import type { Reducer } from './index.tsx';
-import type { ReducerPayload } from './index.tsx';
-import type { StoreState } from './index.tsx';
+import type { Payload } from './index.tsx';
 
 export type Dispatcher<
-  TStoreState extends StoreState = StoreState,
-  TReducer extends Reducer<TStoreState, any> = Reducer<TStoreState, any>,
+  TPayload extends void | Payload = void | Payload,
 > = {
   (
-    payload: ReducerPayload<TStoreState, TReducer>,
+    payload: TPayload,
   ): void;
   (
     instanceKey: InstanceKey,
-    payload: ReducerPayload<TStoreState, TReducer>,
+    payload: TPayload,
   ): void;
 };

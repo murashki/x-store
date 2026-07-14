@@ -17,7 +17,7 @@
 // import { INTERNAL_STORE_PROPS_ACCESSOR } from './constants.tsx';
 // import { InternalStore } from './InternalStore.tsx';
 //
-// export function createUseLatest(storeRegistry: StoreRegistry, useProp: UseProp) {
+// export function createUseLatest(storeRegistry: StoreRegistry) {
 //   return function useLatest<
 //     TStoreState extends StoreState = StoreState,
 //     TReducerMap extends ReducerMap<TStoreState> = ReducerMap<TStoreState>,
@@ -25,7 +25,7 @@
 //     TReducer extends Reducer<TStoreState, any> = Reducer<TStoreState, any>,
 //   >(
 //     exec: () => void,
-//     reducerLink: ReducerLink<string, TStoreState, TReducerMap[`$$init`], TReducerMap[`$$reset`], TReducerName, TReducer>,
+//     reducerLinks: ReducerLink<string, TStoreState, TReducerMap[`$$init`], TReducerMap[`$$reset`], TReducerName, TReducer>[],
 //     instanceKey?: InstanceKey,
 //   ): TStoreState[TStateName] {
 //     const requestState = useProp(stateLink, instanceKey);

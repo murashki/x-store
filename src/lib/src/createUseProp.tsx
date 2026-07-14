@@ -3,9 +3,7 @@ import { useContext } from 'react';
 import { useSyncExternalStoreWithSelector } from 'use-sync-external-store/with-selector';
 
 import type { InstanceKey } from './types/index.tsx';
-import type { InitPayload } from './types/index.tsx';
 import type { ReducerMap } from './types/index.tsx';
-import type { ResetPayload } from './types/index.tsx';
 import type { StateLink } from './types/index.tsx';
 import type { StoreRegistry } from './types/index.tsx';
 import type { StoreState } from './types/index.tsx';
@@ -20,7 +18,7 @@ export function createUseProp(storeRegistry: StoreRegistry): UseProp {
     TReducerMap extends ReducerMap<TStoreState> = ReducerMap<TStoreState>,
     TStateName extends keyof TStoreState = keyof TStoreState,
   >(
-    stateLink: StateLink<string, TStoreState, TReducerMap[`$$init`], TReducerMap[`$$reset`], TStateName>,
+    stateLink: StateLink<string, TStoreState, TReducerMap, TStateName>,
     instanceKey?: InstanceKey,
   ): TStoreState[TStateName] {
     const internalStoreProps = stateLink[INTERNAL_STORE_PROPS_ACCESSOR];
@@ -37,7 +35,7 @@ export function createUseProp(storeRegistry: StoreRegistry): UseProp {
       throw new Error(`Store "${internalStoreProps.name}" is not initialized for instance "${String(actualInstanceKey)}".`);
     }
 
-    const internalStore = storeRegistry[internalStoreProps.uniqKey].internalStore as InternalStore<TStoreState, InitPayload<TStoreState, TReducerMap>, ResetPayload<TStoreState, TReducerMap>>;
+    const internalStore = storeRegistry[internalStoreProps.uniqKey].internalStore as InternalStore<TStoreState, TReducerMap>;
 
     const subscribe  = useCallback((listener: () => void) => {
       return internalStore.subscribe(actualInstanceKey, listener);

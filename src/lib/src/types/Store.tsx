@@ -11,7 +11,7 @@ export type Store<
   TReducerMap extends ReducerMap<TStoreState> = ReducerMap<TStoreState>,
 > =
   & {
-    [INTERNAL_STORE_PROPS_ACCESSOR]: InternalStoreProps<TStoreName, TStoreState, TReducerMap[`$$init`], TReducerMap[`$$reset`]>;
+    [INTERNAL_STORE_PROPS_ACCESSOR]: InternalStoreProps<TStoreName, TStoreState, TReducerMap>;
   }
   & {
     [`$$init`]: void;
@@ -19,13 +19,13 @@ export type Store<
   }
   & {
     [TKey in keyof TStoreState]: TKey extends string
-      ? StateLink<TStoreName, TStoreState, TReducerMap[`$$init`], TReducerMap[`$$reset`], TKey>
+      ? StateLink<TStoreName, TStoreState, TReducerMap, TKey>
       : never;
   }
   & {
     [TKey in keyof TReducerMap]: TKey extends string
       ? TKey extends keyof TStoreState
         ? never
-        : ReducerLink<TStoreName, TStoreState, TReducerMap[`$$init`], TReducerMap[`$$reset`], TKey, TReducerMap[TKey]>
+        : ReducerLink<TStoreName, TStoreState, TReducerMap, TKey>
       : never;
   };

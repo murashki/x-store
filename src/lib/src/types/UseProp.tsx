@@ -9,7 +9,7 @@ export type UseProp = {
     TReducerMap extends ReducerMap<TStoreState> = ReducerMap<TStoreState>,
     TStateName extends keyof TStoreState = keyof TStoreState,
   >(
-    stateLink: StateLink<string, TStoreState, TReducerMap[`$$init`], TReducerMap[`$$reset`], TStateName>,
+    stateLink: StateLink<string, TStoreState, TReducerMap, TStateName>,
     instanceKey?: InstanceKey,
   ): TStoreState[TStateName];
 };

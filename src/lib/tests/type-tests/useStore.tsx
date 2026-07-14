@@ -1,5 +1,5 @@
-import { createStore } from '../src/index.tsx';
-import { createStoreRegistry } from '../src/index.tsx';
+import { createStore } from '../../src';
+import { createStoreRegistry } from '../../src';
 
 {
   const { useStore } = createStoreRegistry();
@@ -29,16 +29,6 @@ import { createStoreRegistry } from '../src/index.tsx';
   useStore(store, () => {
     return;
   });
-}
-
-{
-  const { useStore } = createStoreRegistry();
-  type State = { propA: string, propB: number };
-  const initialState: State = { propA: ``, propB: 0 };
-  const store = createStore(``, initialState, {
-    [`$$init`]: (state) => state,
-    [`$$reset`]: (state) => state,
-  });
   useStore(store, (init) => {
     return init();
   });
@@ -64,16 +54,6 @@ import { createStoreRegistry } from '../src/index.tsx';
     // @ts-expect-error
     const reset = init();
     return () => reset();
-  });
-}
-
-{
-  const { useStore } = createStoreRegistry();
-  type State = { propA: string, propB: number };
-  const initialState: State = { propA: ``, propB: 0 };
-  const store = createStore(``, initialState, {
-    [`$$init`]: (state, payload: { prop: string }) => ({ ...state, propA: payload.prop }),
-    [`$$reset`]: (state) => state,
   });
   useStore(store, (init) => {
     return init({ prop: `` });
@@ -100,16 +80,6 @@ import { createStoreRegistry } from '../src/index.tsx';
     const reset = init();
     // @ts-expect-error
     return () => reset();
-  });
-}
-
-{
-  const { useStore } = createStoreRegistry();
-  type State = { propA: string, propB: number };
-  const initialState: State = { propA: ``, propB: 0 };
-  const store = createStore(``, initialState, {
-    [`$$init`]: (state) => state,
-    [`$$reset`]: (state, payload: { prop: string }) => ({ ...state, propA: payload.prop }),
   });
   useStore(store, (init) => {
     const reset = init();

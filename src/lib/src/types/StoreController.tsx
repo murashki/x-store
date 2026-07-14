@@ -8,6 +8,6 @@ export type StoreController<
   TStoreState extends StoreState = StoreState,
   TReducerMap extends ReducerMap<TStoreState> = ReducerMap<TStoreState>,
 > = {
-  internalStore: InternalStore<TStoreState, Parameters<TReducerMap[`$$init`]>[1], Parameters<TReducerMap[`$$reset`]>[1]>;
+  internalStore: InternalStore<TStoreState, TReducerMap>;
   instances: Record<InstanceKey, StoreControllerInstance<TStoreState, Parameters<TReducerMap[`$$reset`]>[1]>>;
 };

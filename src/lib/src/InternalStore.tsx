@@ -1,13 +1,16 @@
+import type { InitPayload } from './types/index.tsx';
 import type { InstanceKey } from './types/index.tsx';
 import type { Payload } from './types/index.tsx';
 import type { Reducer } from './types/index.tsx';
+import type { ReducerMap } from './types/index.tsx';
+import type { ResetPayload } from './types/index.tsx';
 import type { StoreState } from './types/index.tsx';
 
 export type Dispatch<
   TStoreState extends StoreState = StoreState,
 > = {
   <
-    TPayload extends Payload = Payload,
+    TPayload extends void | Payload = void | Payload,
   >(
     instanceKey: InstanceKey,
     payload: TPayload,
@@ -19,7 +22,7 @@ export type Listener<
   TStoreState extends StoreState = StoreState,
 > = {
   <
-    TPayload extends Payload = Payload,
+    TPayload extends void | Payload = void | Payload,
     TReducer extends Reducer<TStoreState, TPayload> = Reducer<TStoreState, TPayload>,
   >(
     instanceKey: InstanceKey,
@@ -32,7 +35,7 @@ export type ListenerAll<
   TStoreState extends StoreState = StoreState,
 > = {
   <
-    TPayload extends Payload = Payload,
+    TPayload extends void | Payload = void | Payload,
     TReducer extends Reducer<TStoreState, TPayload> = Reducer<TStoreState, TPayload>,
   >(
     instanceKey: InstanceKey,
@@ -105,8 +108,7 @@ export type GetStateAll<
 
 export class InternalStore<
   TStoreState extends StoreState = StoreState,
-  TInitPayload extends void | Payload = void | Payload,
-  TResetPayload extends void | Payload = void | Payload,
+  TReducerMap extends ReducerMap<TStoreState> = ReducerMap<TStoreState>,
 > {
   private listeners: Record<InstanceKey, Set<Listener<TStoreState>>>;
 
@@ -131,7 +133,7 @@ export class InternalStore<
     return this.state;
   };
 
-  public initInstance: InitInstance<TStoreState, TInitPayload, TResetPayload> = (instanceKey, initialState, initPayload, initReducer) => {
+  public initInstance: InitInstance<TStoreState, InitPayload<TReducerMap>, ResetPayload<TReducerMap>> = (instanceKey, initialState, initPayload, initReducer) => {
     const initState = initReducer(initialState, initPayload);
     this.state = { ...this.state, [instanceKey]: initState };
 
