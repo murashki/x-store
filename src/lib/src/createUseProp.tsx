@@ -1,5 +1,8 @@
 import { useCallback } from 'react';
 import { useContext } from 'react';
+import { useEffect } from 'react';
+import { useMemo } from 'react';
+import { useState } from 'react';
 import { useSyncExternalStoreWithSelector } from 'use-sync-external-store/with-selector';
 
 import type { InstanceKey } from './types/index.tsx';
@@ -24,30 +27,43 @@ export function createUseProp(storeRegistry: StoreRegistry): UseProp {
     const internalStoreProps = stateLink[INTERNAL_STORE_PROPS_ACCESSOR];
     const contextInstanceKey = useContext(internalStoreProps.context);
     const actualInstanceKey = instanceKey ?? contextInstanceKey ?? DEFAULT_INSTANCE_KEY;
+    const [, setUninitializedHack] = useState(0);
 
-    // TODO Вынести в отдельную функцию, т.к. уже встречается в проекте пару раз
-    if ( ! (internalStoreProps.uniqKey in storeRegistry)) {
-      throw new Error(`Store "${internalStoreProps.name}" is not registered.`);
-    }
+    const initialized = internalStoreProps.uniqKey in storeRegistry && storeRegistry[internalStoreProps.uniqKey].instances[actualInstanceKey];
 
-    // TODO Вынести в отдельную функцию, т.к. уже встречается в проекте пару раз
-    if ( ! (storeRegistry[internalStoreProps.uniqKey].instances[actualInstanceKey])) {
-      throw new Error(`Store "${internalStoreProps.name}" is not initialized for instance "${String(actualInstanceKey)}".`);
-    }
+    const { getSnapshot, subscribe } = useMemo(() => {
+      let subscribe: (listener: () => void) => () => void;
+      let getSnapshot: () => TStoreState;
 
-    const internalStore = storeRegistry[internalStoreProps.uniqKey].internalStore as InternalStore<TStoreState, TReducerMap>;
+      if (initialized) {
+        const internalStore = storeRegistry[internalStoreProps.uniqKey].internalStore as InternalStore<TStoreState, TReducerMap>;
 
-    const subscribe  = useCallback((listener: () => void) => {
-      return internalStore.subscribe(actualInstanceKey, listener);
-    }, [actualInstanceKey, internalStore]);
+        subscribe = (listener: () => void) => {
+          return internalStore.subscribe(actualInstanceKey, listener);
+        };
 
-    const getSnapshot = useCallback(() => {
-      return internalStore.getState(actualInstanceKey);
-    }, [actualInstanceKey, internalStore]);
+        getSnapshot = () => {
+          return internalStore.getState(actualInstanceKey);
+        };
+      }
+      else {
+        subscribe = () => () => undefined;
+        getSnapshot = () => internalStoreProps.initialState;
+      }
+
+      return { getSnapshot, subscribe };
+    }, [actualInstanceKey, initialized, internalStoreProps, storeRegistry]);
 
     const selector = useCallback((state: TStoreState) => {
       return state[stateLink.stateName];
     }, [stateLink]);
+
+    useEffect(() => {
+      const initializedAfterEffect = internalStoreProps.uniqKey in storeRegistry && storeRegistry[internalStoreProps.uniqKey].instances[actualInstanceKey];
+      if ( ! initialized && initializedAfterEffect) {
+        setUninitializedHack(state => state + 1);
+      }
+    }, [actualInstanceKey, initialized, internalStoreProps, storeRegistry]);
 
     return useSyncExternalStoreWithSelector(
       subscribe,

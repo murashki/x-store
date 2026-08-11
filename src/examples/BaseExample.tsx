@@ -34,12 +34,15 @@ type FormState = {
 };
 
 const initialFormState: FormState = {
-  productName: `Новый продукт`,
+  productName: ``,
 };
 
 const formStore = createStore(`form`, initialFormState, {
-  [`$$init`]: (): FormState => {
-    return initialFormState;
+  [`$$init`]: (state): FormState => {
+    return {
+      ...state,
+      productName: `Новый продукт`,
+    };
   },
   [`$$reset`]: (state): FormState => {
     return {
@@ -66,7 +69,15 @@ type ProductNameChangePayload = {
 };
 
 export const App = React.memo(function App() {
-  console.log(`App render`);
+  const formOpen = useProp(appStore.formOpen);
+  const productName = useProp(formStore.productName);
+  const dispatchFormToggle = useDispatcher(appStore.formToggle);
+
+  console.log(`App render`, { formOpen, productName });
+
+  useEffect(() => {
+    console.log(`App effect`);
+  });
 
   useStore(appStore, (init) => {
     return init();
@@ -74,15 +85,6 @@ export const App = React.memo(function App() {
 
   useStore(formStore, (init) => {
     return init();
-  });
-
-  const formOpen = useProp(appStore.formOpen);
-  const productName = useProp(formStore.productName);
-  const dispatchFormToggle = useDispatcher(appStore.formToggle);
-
-  useEffect(() => {
-    console.log(`App effect`);
-    return () => console.log(`App cleanup effect`);
   });
 
   return (
@@ -107,15 +109,14 @@ export const App = React.memo(function App() {
 });
 
 export const Form = React.memo(function Form() {
-  console.log(`Form render`);
-
   const productName = useProp(formStore.productName);
   const dispatchProductNameChange = useDispatcher(formStore.productNameChange);
   const dispatchProductNameClear = useDispatcher(formStore.productNameClear);
 
+  console.log(`Form render`, { productName });
+
   useEffect(() => {
     console.log(`Form effect`);
-    return () => console.log(`Form cleanup effect`);
   });
 
   return (
