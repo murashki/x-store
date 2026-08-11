@@ -1,33 +1,33 @@
-// import { useCallback } from 'react';
-// import { useContext } from 'react';
-// import { useSyncExternalStoreWithSelector } from 'use-sync-external-store/with-selector';
-// import type { ReducerLink } from './types/index.tsx';
-// import type { Reducer } from './types/index.tsx';
-//
-// import type { InstanceKey } from './types/index.tsx';
-// import type { InitPayload } from './types/index.tsx';
-// import type { ReducerMap } from './types/index.tsx';
-// import type { ResetPayload } from './types/index.tsx';
-// import type { RequestStateStoreKey } from './types/index.tsx';
-// import type { StateLink } from './types/index.tsx';
-// import type { StoreRegistry } from './types/index.tsx';
-// import type { StoreState } from './types/index.tsx';
-// import type { UseProp } from './types/index.tsx';
-// import { DEFAULT_INSTANCE_KEY } from './constants.tsx';
-// import { INTERNAL_STORE_PROPS_ACCESSOR } from './constants.tsx';
-// import { InternalStore } from './InternalStore.tsx';
-//
-// export function createUseLatest(storeRegistry: StoreRegistry) {
-//   return function useLatest<
-//     TStoreState extends StoreState = StoreState,
-//     TReducerMap extends ReducerMap<TStoreState> = ReducerMap<TStoreState>,
-//     TReducerName extends string = string,
-//     TReducer extends Reducer<TStoreState, any> = Reducer<TStoreState, any>,
-//   >(
-//     exec: () => void,
-//     reducerLinks: ReducerLink<string, TStoreState, TReducerMap[`$$init`], TReducerMap[`$$reset`], TReducerName, TReducer>[],
-//     instanceKey?: InstanceKey,
-//   ): TStoreState[TStateName] {
-//     const requestState = useProp(stateLink, instanceKey);
-//   };
-// }
+import type { InstanceKey } from './types/index.tsx';
+import type { Reducer } from './types/index.tsx';
+import type { ReducerLink } from './types/index.tsx';
+import type { ReducerMap } from './types/index.tsx';
+import type { StoreRegistry } from './types/index.tsx';
+import type { StoreState } from './types/index.tsx';
+
+type Saga<
+  TActionName extends string = string,
+  TPayload extends any = any,
+  TContext extends any = any,
+> = {
+  (
+    actionName: TActionName,
+    payload: TPayload,
+    ctx: TContext,
+  ): void;
+};
+
+export function createUseLatest(storeRegistry: StoreRegistry) {
+  return function useLatest<
+    TStoreState extends StoreState = StoreState,
+    TReducerMap extends ReducerMap<TStoreState> = ReducerMap<TStoreState>,
+    TReducerName extends string = string,
+    TReducer extends Reducer<TStoreState, any> = Reducer<TStoreState, any>,
+  >(
+    saga: Saga<TReducerName>,
+    reducerLinks: ReducerLink<string, TStoreState, TReducerMap, TReducerName>[],
+    instanceKey?: InstanceKey,
+  ): any {
+    return;
+  };
+}
