@@ -43,9 +43,9 @@ export const requestState = {
     };
   },
   rejected: <
-    TError extends Error = Error,
     TMeta extends RequestStateMeta = RequestStateMeta,
-  >(error?: null | TError, meta?: null | TMeta): RequestRejectedState<TError, TMeta> => {
+    TError extends unknown = unknown,
+  >(error?: null | TError, meta?: null | TMeta): RequestRejectedState<TMeta, TError> => {
     return {
       ...requestStateDefault,
       isRejected: true,
@@ -81,10 +81,10 @@ export const requestState = {
     return requestState.fulfilled<TMeta>(meta);
   },
   forceRejected: <
-    TError extends Error = Error,
     TMeta extends RequestStateMeta = RequestStateMeta,
-  >(error?: null | TError, meta?: null | TMeta): RequestRejectedState<TError, TMeta> => {
-    return requestState.rejected<TError, TMeta>(error, meta);
+    TError extends unknown = unknown,
+  >(error?: null | TError, meta?: null | TMeta): RequestRejectedState<TMeta, TError> => {
+    return requestState.rejected<TMeta, TError>(error, meta);
   },
   forceAborted: <
     TMeta extends RequestStateMeta = RequestStateMeta,

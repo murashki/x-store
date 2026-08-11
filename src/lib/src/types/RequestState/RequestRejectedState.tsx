@@ -2,8 +2,8 @@ import type { requestStatus } from '../../requestStatus.tsx';
 import type { RequestStateMeta } from '../RequestStateMeta.tsx';
 
 export type RequestRejectedState<
-  TResponseError extends Error = Error,
   TMeta extends RequestStateMeta = RequestStateMeta,
+  TResponseError extends unknown = unknown,
 > = {
   isIdle: false,
   isPending: false,

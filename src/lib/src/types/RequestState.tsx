@@ -6,11 +6,11 @@ import type { RequestRejectedState } from './RequestState/RequestRejectedState.t
 import type { RequestStateMeta } from './RequestStateMeta.tsx';
 
 export type RequestState<
-  TError extends Error = Error,
   TMeta extends RequestStateMeta = RequestStateMeta,
+  TError extends unknown = unknown,
 > =
   | RequestIdleState<TMeta>
   | RequestPendingState<TMeta>
   | RequestFulfilledState<TMeta>
-  | RequestRejectedState<TError, TMeta>
+  | RequestRejectedState<TMeta, TError>
   | RequestAbortedState<TMeta>;
