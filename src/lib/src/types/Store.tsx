@@ -12,10 +12,8 @@ export type Store<
 > =
   & {
     [INTERNAL_STORE_PROPS_ACCESSOR]: InternalStoreProps<TStoreName, TStoreState, TReducerMap>;
-  }
-  & {
-    [`$$init`]: void;
-    [`$$reset`]: void;
+    $$init: void;
+    $$reset: void;
   }
   & {
     [TKey in keyof TStoreState]: TKey extends string

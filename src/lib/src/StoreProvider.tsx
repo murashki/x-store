@@ -1,11 +1,10 @@
 import React from 'react';
 
 import type { InstanceKey } from './types/InstanceKey.tsx';
-import type { Store } from './types/Store.tsx';
 import { INTERNAL_STORE_PROPS_ACCESSOR } from './constants.tsx';
 
 export type StoreProviderProps = React.PropsWithChildren<{
-  store: Store;
+  store: { [INTERNAL_STORE_PROPS_ACCESSOR]: { context: React.Context<null | InstanceKey> } };
   instanceKey: InstanceKey;
 }>;
 

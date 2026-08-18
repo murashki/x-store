@@ -9,8 +9,8 @@ export type InternalStoreProps<
   TStoreState extends StoreState = StoreState,
   TReducerMap extends ReducerMap<TStoreState> = ReducerMap<TStoreState>,
 > = {
-  [`$$init`]: TReducerMap[`$$init`];
-  [`$$reset`]: TReducerMap[`$$reset`];
+  $$init: TReducerMap[`$$init`];
+  $$reset: TReducerMap[`$$reset`];
   context: React.Context<null | InstanceKey>;
   initialState: TStoreState;
   name: TStoreName;

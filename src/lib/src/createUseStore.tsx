@@ -1,3 +1,4 @@
+import { useContext } from 'react';
 import { useEffect } from 'react';
 import { useMemo } from 'react';
 import { useRef } from 'react';
@@ -52,11 +53,22 @@ export function createUseStore(storeRegistry: StoreRegistry) {
       resetInstance: () => typeof STORE_INSTANCE_UNREGISTERED;
     };
 
+    const storeRef = useRef<{ store: Store<string, TStoreState, TReducerMap> }>({ store });
+    const storeMismatchWarnedRef = useRef<{ warned: boolean }>({ warned: false });
+
+    if (storeRef.current.store !== store) {
+      console.warn(`Store reference mismatch. You must pass the same store instance on every render.`);
+      storeMismatchWarnedRef.current.warned = true;
+    }
+
     let instanceKeys: InstanceKey[];
     let registerInstance: RegisterInstance<TInitPayload, TResetPayload> | RegisterDefaultInstance<TInitPayload, TResetPayload>;
 
+    const internalStoreProps = storeRef.current.store[INTERNAL_STORE_PROPS_ACCESSOR] as InternalStoreProps<string, TStoreState, TReducerMap>;
+    const contextInstanceKey = useContext(internalStoreProps.context);
+
     if (typeof args[0] === `function`) {
-      instanceKeys = [DEFAULT_INSTANCE_KEY] as InstanceKey[];
+      instanceKeys = [contextInstanceKey ?? DEFAULT_INSTANCE_KEY] as InstanceKey[];
       registerInstance = args[0] as RegisterDefaultInstance<TInitPayload, TResetPayload>;
     }
     else {
@@ -66,29 +78,17 @@ export function createUseStore(storeRegistry: StoreRegistry) {
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
     const actualInstanceKeys = useMemo(() => instanceKeys, instanceKeys);
-
-    const storeRef = useRef<{ store: Store<string, TStoreState, TReducerMap> }>({ store });
     const ownerKeyRef = useRef<{ ownerKey: symbol }>({ ownerKey: Symbol(`ownerKey`) });
     const initInstancesRef = useRef<{ initInstances: Record<InstanceKey, InitInstance> }>({ initInstances: {} });
 
-    const storeMismatchWarnedRef = useRef<{ warned: boolean }>({ warned: false });
-
-    if (storeRef.current.store !== store) {
-      console.warn(`Store reference mismatch. You must pass the same store instance on every render.`);
-      storeMismatchWarnedRef.current.warned = true;
-    }
-
     useEffect(
       () => {
-        const { store } = storeRef.current;
         const { ownerKey } = ownerKeyRef.current;
         const { initInstances } = initInstancesRef.current;
 
         for (const instanceKey of actualInstanceKeys) {
           if ( ! initInstances[instanceKey]) {
             const initInstance = (initPayload: TInitPayload) => {
-              const internalStoreProps = store[INTERNAL_STORE_PROPS_ACCESSOR] as InternalStoreProps<string, TStoreState, TReducerMap>;
-
               const storeController = createStoreController(storeRegistry, internalStoreProps);
 
               if ( ! storeController.instances[instanceKey]) {
@@ -146,7 +146,7 @@ export function createUseStore(storeRegistry: StoreRegistry) {
         }
       },
       // eslint-disable-next-line react-hooks/exhaustive-deps
-      [actualInstanceKeys, /*registerInstance*/],
+      [actualInstanceKeys, internalStoreProps, /*registerInstance*/],
     );
 
     useEffect(() => {
