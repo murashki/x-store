@@ -30,12 +30,15 @@ export default tseslint.config(
       ...reactHooks.configs.recommended.rules,
       'react-hooks/rules-of-hooks': 'off',
       'react-refresh/only-export-components': 'off',
-      '@typescript-eslint/ban-ts-comment': {
-        'ts-check': false,
-        'ts-expect-error': false,
-        'ts-ignore': true,
-        'ts-nocheck': true,
-      },
+      '@typescript-eslint/ban-ts-comment': [
+        'error',
+        {
+          'ts-check': false,
+          'ts-expect-error': false,
+          'ts-ignore': true,
+          'ts-nocheck': true,
+        },
+      ],
       '@typescript-eslint/no-explicit-any': 'off',
       '@typescript-eslint/no-unnecessary-type-constraint': 'off',
     },

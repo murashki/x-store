@@ -1,5 +1,5 @@
-import type { Payload } from './index.tsx';
-import type { Reducer } from './index.tsx';
+import type { Payload } from './Payload.tsx';
+import type { Reducer } from './Reducer.tsx';
 
 export type ReducerPayload<
   TReducer extends Reducer<any, any> = Reducer<any, any>,

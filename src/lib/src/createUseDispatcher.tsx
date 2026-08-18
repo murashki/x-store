@@ -1,13 +1,13 @@
 import { useContext } from 'react';
 import { useMemo } from 'react';
-import type { ReducerMap } from './types/index.tsx';
+import type { ReducerMap } from './types/ReducerMap.tsx';
 
-import type { Dispatcher } from './types/index.tsx';
-import type { InstanceKey } from './types/index.tsx';
-import type { ReducerLink } from './types/index.tsx';
-import type { ReducerPayload } from './types/index.tsx';
-import type { StoreRegistry } from './types/index.tsx';
-import type { StoreState } from './types/index.tsx';
+import type { Dispatcher } from './types/Dispatcher.tsx';
+import type { InstanceKey } from './types/InstanceKey.tsx';
+import type { ReducerLink } from './types/ReducerLink.tsx';
+import type { ReducerPayload } from './types/ReducerPayload.tsx';
+import type { StoreRegistry } from './types/StoreRegistry.tsx';
+import type { StoreState } from './types/StoreState.tsx';
 import { DEFAULT_INSTANCE_KEY } from './constants.tsx';
 import { INTERNAL_STORE_PROPS_ACCESSOR } from './constants.tsx';
 import { InternalStore } from './InternalStore.tsx';

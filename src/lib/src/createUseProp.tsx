@@ -3,17 +3,18 @@ import { useContext } from 'react';
 import { useEffect } from 'react';
 import { useMemo } from 'react';
 import { useState } from 'react';
+import { useRef } from 'react';
 import { useSyncExternalStoreWithSelector } from 'use-sync-external-store/with-selector';
 
-import type { InstanceKey } from './types/index.tsx';
-import type { ReducerMap } from './types/index.tsx';
-import type { StateLink } from './types/index.tsx';
-import type { StoreRegistry } from './types/index.tsx';
-import type { StoreState } from './types/index.tsx';
-import type { UseProp } from './types/index.tsx';
+import type { InstanceKey } from './types/InstanceKey.tsx';
+import type { ReducerMap } from './types/ReducerMap.tsx';
+import type { StateLink } from './types/StateLink.tsx';
+import type { StoreRegistry } from './types/StoreRegistry.tsx';
+import type { StoreState } from './types/StoreState.tsx';
+import type { UseProp } from './types/UseProp.tsx';
 import { DEFAULT_INSTANCE_KEY } from './constants.tsx';
 import { INTERNAL_STORE_PROPS_ACCESSOR } from './constants.tsx';
-import { InternalStore } from './InternalStore.tsx';
+import { createStoreController } from './createStoreController.tsx';
 
 export function createUseProp(storeRegistry: StoreRegistry): UseProp {
   return function useProp<
@@ -28,42 +29,44 @@ export function createUseProp(storeRegistry: StoreRegistry): UseProp {
     const contextInstanceKey = useContext(internalStoreProps.context);
     const actualInstanceKey = instanceKey ?? contextInstanceKey ?? DEFAULT_INSTANCE_KEY;
     const [, setUninitializedHack] = useState(0);
+    const earlySubscriberRef = useRef<{ earlySubscriber: null | (() => void) }>({ earlySubscriber: null });
 
-    const initialized = internalStoreProps.uniqKey in storeRegistry && storeRegistry[internalStoreProps.uniqKey].instances[actualInstanceKey];
+    const storeController = createStoreController(storeRegistry, internalStoreProps);
+
+    const initialized = actualInstanceKey in storeController.instances;
 
     const { getSnapshot, subscribe } = useMemo(() => {
       let subscribe: (listener: () => void) => () => void;
       let getSnapshot: () => TStoreState;
 
       if (initialized) {
-        const internalStore = storeRegistry[internalStoreProps.uniqKey].internalStore as InternalStore<TStoreState, TReducerMap>;
-
         subscribe = (listener: () => void) => {
-          return internalStore.subscribe(actualInstanceKey, listener);
+          return storeController.internalStore.subscribe(actualInstanceKey, listener);
         };
 
         getSnapshot = () => {
-          return internalStore.getState(actualInstanceKey);
+          return storeController.internalStore.getState(actualInstanceKey);
         };
       }
       else {
         subscribe = () => () => undefined;
         getSnapshot = () => internalStoreProps.initialState;
+        if ( ! storeController.earlySubscribers[actualInstanceKey]) {
+          storeController.earlySubscribers[actualInstanceKey] = [];
+        }
+        else if (earlySubscriberRef.current.earlySubscriber) {
+          storeController.earlySubscribers[actualInstanceKey].splice(storeController.earlySubscribers[actualInstanceKey].indexOf(earlySubscriberRef.current.earlySubscriber), 1);
+        }
+        const earlySubscriber = earlySubscriberRef.current.earlySubscriber = () => setUninitializedHack(state => state + 1);
+        storeController.earlySubscribers[actualInstanceKey].push(earlySubscriber);
       }
 
       return { getSnapshot, subscribe };
-    }, [actualInstanceKey, initialized, internalStoreProps, storeRegistry]);
+    }, [actualInstanceKey, initialized, internalStoreProps, storeController]);
 
     const selector = useCallback((state: TStoreState) => {
       return state[stateLink.stateName];
     }, [stateLink]);
-
-    useEffect(() => {
-      const initializedAfterEffect = internalStoreProps.uniqKey in storeRegistry && storeRegistry[internalStoreProps.uniqKey].instances[actualInstanceKey];
-      if ( ! initialized && initializedAfterEffect) {
-        setUninitializedHack(state => state + 1);
-      }
-    }, [actualInstanceKey, initialized, internalStoreProps, storeRegistry]);
 
     return useSyncExternalStoreWithSelector(
       subscribe,

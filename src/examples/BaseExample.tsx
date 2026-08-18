@@ -15,10 +15,10 @@ const initialAppState = {
 };
 
 const appStore = createStore(`app`, initialAppState, {
-  [`$$init`]: (state): AppState => {
+  $$init: (state): AppState => {
     return state;
   },
-  [`$$reset`]: (state): AppState => {
+  $$reset: (state): AppState => {
     return state;
   },
   formToggle: (state): AppState => {
@@ -38,13 +38,13 @@ const initialFormState: FormState = {
 };
 
 const formStore = createStore(`form`, initialFormState, {
-  [`$$init`]: (state): FormState => {
+  $$init: (state): FormState => {
     return {
       ...state,
       productName: `Новый продукт`,
     };
   },
-  [`$$reset`]: (state): FormState => {
+  $$reset: (state): FormState => {
     return {
       ...state,
       productName: `xxx`,
@@ -83,10 +83,6 @@ export const App = React.memo(function App() {
     return init();
   });
 
-  useStore(formStore, (init) => {
-    return init();
-  });
-
   return (
     <div>
       <div>
@@ -108,7 +104,7 @@ export const App = React.memo(function App() {
   );
 });
 
-export const Form = React.memo(function Form() {
+const Form = React.memo(function Form() {
   const productName = useProp(formStore.productName);
   const dispatchProductNameChange = useDispatcher(formStore.productNameChange);
   const dispatchProductNameClear = useDispatcher(formStore.productNameClear);
@@ -117,6 +113,10 @@ export const Form = React.memo(function Form() {
 
   useEffect(() => {
     console.log(`Form effect`);
+  });
+
+  useStore(formStore, (init) => {
+    return init();
   });
 
   return (

@@ -1,1 +1,1 @@
-export type InstanceKey = number | string | symbol;
+export type InstanceKey = string | symbol;

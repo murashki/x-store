@@ -1,4 +1,4 @@
-import type { StoreRegistry } from './types/index.tsx';
+import type { StoreRegistry } from './types/StoreRegistry.tsx';
 import { createUseDispatcher } from './createUseDispatcher.tsx';
 import { createUseLatest } from './createUseLatest.tsx';
 import { createUseProp } from './createUseProp.tsx';

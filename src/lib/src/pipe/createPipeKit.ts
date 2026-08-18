@@ -102,7 +102,6 @@ export function createPipeKit({
       debug?.onError(new UserLogicError(`It looks like you're calling \`emitData\` after the \`Final\` value has already been emitted`), pipeState);
     }
 
-    // TEMP
     if (dataBarrel.dataType === `error`) {
       console.error(dataBarrel.data);
     }

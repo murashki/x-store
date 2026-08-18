@@ -1,5 +1,5 @@
-import type { Reducer } from './index.tsx';
-import type { StoreState } from './index.tsx';
+import type { Reducer } from './Reducer.tsx';
+import type { StoreState } from './StoreState.tsx';
 
 export type ReducerMap<
   TStoreState extends StoreState = StoreState,

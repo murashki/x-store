@@ -1,8 +1,8 @@
 import React from 'react';
 
-import type { InstanceKey } from './index.tsx';
-import type { ReducerMap } from './index.tsx';
-import type { StoreState } from './index.tsx';
+import type { InstanceKey } from './InstanceKey.tsx';
+import type { ReducerMap } from './ReducerMap.tsx';
+import type { StoreState } from './StoreState.tsx';
 
 export type InternalStoreProps<
   TStoreName extends string = string,

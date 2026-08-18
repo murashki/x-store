@@ -1,9 +1,9 @@
-import type { InstanceKey } from './types/index.tsx';
-import type { Reducer } from './types/index.tsx';
-import type { ReducerLink } from './types/index.tsx';
-import type { ReducerMap } from './types/index.tsx';
-import type { StoreRegistry } from './types/index.tsx';
-import type { StoreState } from './types/index.tsx';
+import type { InstanceKey } from './types/InstanceKey.tsx';
+import type { Reducer } from './types/Reducer.tsx';
+import type { ReducerLink } from './types/ReducerLink.tsx';
+import type { ReducerMap } from './types/ReducerMap.tsx';
+import type { StoreRegistry } from './types/StoreRegistry.tsx';
+import type { StoreState } from './types/StoreState.tsx';
 
 type Saga<
   TActionName extends string = string,

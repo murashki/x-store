@@ -1,12 +1,12 @@
 import React from 'react';
 
-import type { InstanceKey } from './types/index.tsx';
-import type { InternalStoreProps } from './types/index.tsx';
-import type { Payload } from './types/index.tsx';
-import type { Reducer } from './types/index.tsx';
-import type { ReducerMap } from './types/index.tsx';
-import type { Store } from './types/index.tsx';
-import type { StoreState } from './types/index.tsx';
+import type { InstanceKey } from './types/InstanceKey.tsx';
+import type { InternalStoreProps } from './types/InternalStoreProps.tsx';
+import type { Payload } from './types/Payload.tsx';
+import type { Reducer } from './types/Reducer.tsx';
+import type { ReducerMap } from './types/ReducerMap.tsx';
+import type { Store } from './types/Store.tsx';
+import type { StoreState } from './types/StoreState.tsx';
 import { INTERNAL_STORE_PROPS_ACCESSOR } from './constants.tsx';
 import { REDUCER_LINK } from './constants.tsx';
 import { STATE_LINK } from './constants.tsx';

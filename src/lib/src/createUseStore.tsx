@@ -2,25 +2,20 @@ import { useEffect } from 'react';
 import { useMemo } from 'react';
 import { useRef } from 'react';
 
-import type { InitPayload } from './types/index.tsx';
-import type { InstanceKey } from './types/index.tsx';
-import type { InternalStoreProps } from './types/index.tsx';
-import type { ReducerMap } from './types/index.tsx';
-import type { RegisterDefaultInstance } from './types/index.tsx';
-import type { RegisterInstance } from './types/index.tsx';
-import type { ResetPayload } from './types/index.tsx';
-import type { Store } from './types/index.tsx';
-import type { StoreController } from './types/index.tsx';
-import type { StoreRegistry } from './types/index.tsx';
-import type { StoreState } from './types/index.tsx';
+import type { InitPayload } from './types/InitPayload.tsx';
+import type { InstanceKey } from './types/InstanceKey.tsx';
+import type { InternalStoreProps } from './types/InternalStoreProps.tsx';
+import type { ReducerMap } from './types/ReducerMap.tsx';
+import type { RegisterDefaultInstance } from './types/RegisterDefaultInstance.tsx';
+import type { RegisterInstance } from './types/RegisterInstance.tsx';
+import type { ResetPayload } from './types/ResetPayload.tsx';
+import type { Store } from './types/Store.tsx';
+import type { StoreRegistry } from './types/StoreRegistry.tsx';
+import type { StoreState } from './types/StoreState.tsx';
 import { DEFAULT_INSTANCE_KEY } from './constants.tsx';
 import { INTERNAL_STORE_PROPS_ACCESSOR } from './constants.tsx';
 import { STORE_INSTANCE_UNREGISTERED } from './constants.tsx';
-import { InternalStore } from './InternalStore.tsx';
-
-type InitInstance = {
-  resetInstance: () => typeof STORE_INSTANCE_UNREGISTERED;
-};
+import { createStoreController } from './createStoreController.tsx';
 
 export function createUseStore(storeRegistry: StoreRegistry) {
   function useStore<
@@ -53,11 +48,15 @@ export function createUseStore(storeRegistry: StoreRegistry) {
     store: Store<string, TStoreState, TReducerMap>,
     ...args: (InstanceKey[] | RegisterInstance<TInitPayload, TResetPayload> | RegisterDefaultInstance<TInitPayload, TResetPayload>)[]
   ): void {
+    type InitInstance = {
+      resetInstance: () => typeof STORE_INSTANCE_UNREGISTERED;
+    };
+
     let instanceKeys: InstanceKey[];
     let registerInstance: RegisterInstance<TInitPayload, TResetPayload> | RegisterDefaultInstance<TInitPayload, TResetPayload>;
 
     if (typeof args[0] === `function`) {
-      instanceKeys = [] as InstanceKey[];
+      instanceKeys = [DEFAULT_INSTANCE_KEY] as InstanceKey[];
       registerInstance = args[0] as RegisterDefaultInstance<TInitPayload, TResetPayload>;
     }
     else {
@@ -65,36 +64,55 @@ export function createUseStore(storeRegistry: StoreRegistry) {
       registerInstance = args[1] as RegisterInstance<TInitPayload, TResetPayload>;
     }
 
-    const actualInstanceKeys = instanceKeys.length ? instanceKeys : [DEFAULT_INSTANCE_KEY];
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    const actualInstanceKeys = useMemo(() => instanceKeys, instanceKeys);
 
     const storeRef = useRef<{ store: Store<string, TStoreState, TReducerMap> }>({ store });
     const ownerKeyRef = useRef<{ ownerKey: symbol }>({ ownerKey: Symbol(`ownerKey`) });
     const initInstancesRef = useRef<{ initInstances: Record<InstanceKey, InitInstance> }>({ initInstances: {} });
 
-    useMemo(
+    const storeMismatchWarnedRef = useRef<{ warned: boolean }>({ warned: false });
+
+    if (storeRef.current.store !== store) {
+      console.warn(`Store reference mismatch. You must pass the same store instance on every render.`);
+      storeMismatchWarnedRef.current.warned = true;
+    }
+
+    useEffect(
       () => {
-        const initInstances = initInstancesRef.current.initInstances;
-        const store = storeRef.current.store;
+        const { store } = storeRef.current;
+        const { ownerKey } = ownerKeyRef.current;
+        const { initInstances } = initInstancesRef.current;
 
         for (const instanceKey of actualInstanceKeys) {
           if ( ! initInstances[instanceKey]) {
-            const ownerKey = ownerKeyRef.current.ownerKey;
             const initInstance = (initPayload: TInitPayload) => {
               const internalStoreProps = store[INTERNAL_STORE_PROPS_ACCESSOR] as InternalStoreProps<string, TStoreState, TReducerMap>;
 
-              let storeController = storeRegistry[internalStoreProps.uniqKey] as StoreController<TStoreState, TReducerMap>;
-              if ( ! storeController) {
-                const internalStore = new InternalStore<TStoreState, TReducerMap>(internalStoreProps.name);
-                storeController = { internalStore, instances: {} };
-                storeRegistry[internalStoreProps.uniqKey] = storeController as StoreController;
-                // TODO Убрать в логгер
-                console.log(`registerStore [store: ${storeController.internalStore.name}]:`);
-                console.dir(storeRegistry);
-              }
+              const storeController = createStoreController(storeRegistry, internalStoreProps);
 
               if ( ! storeController.instances[instanceKey]) {
-                const resetState = storeController.internalStore.initInstance(instanceKey, internalStoreProps.initialState, initPayload, internalStoreProps[`$$init`]);
+                // TODO Убрать в логгер
+                console.log(`Store instance initialization [store: ${storeController.internalStore.name}, instanceKey: ${instanceKey.toString()}]`);
+                // TODO Убрать в логгер
+                console.log({ storeRegistry });
+
+                const resetState = storeController.internalStore.initInstance(instanceKey, internalStoreProps.initialState, initPayload, internalStoreProps.$$init);
                 storeController.instances[instanceKey] = { owners: [], resetState };
+                if (storeController.earlySubscribers[instanceKey]) {
+                  for (const subscriber of storeController.earlySubscribers[instanceKey]) {
+                    subscriber();
+                  }
+                  storeController.earlySubscribers[instanceKey].splice(0);
+                }
+              }
+              else {
+                // TODO Множественная инициализация хранилища
+                //   Архитектура позволяет несколько раз инициализировать одно и то же хранилище с
+                //   одним и тем же ключом, однако возможно от этого стоит отказаться. Возможно
+                //   стоит просить разработчиков проверять инициализирована ли стора и
+                //   инициализировать ее при необходимости.
+                console.warn(`Duplicate store initialization for key "${instanceKey.toString()}"`);
               }
               storeController.instances[instanceKey].owners.push(ownerKey);
 
@@ -103,7 +121,7 @@ export function createUseStore(storeRegistry: StoreRegistry) {
 
                 if (storeController.instances[instanceKey].owners.length === 0) {
                   // TODO Надо ли оповещать слушателей если один экземпляр хранилища удалился
-                  storeController.instances[instanceKey].resetState(resetPayload, internalStoreProps[`$$reset`]);
+                  storeController.instances[instanceKey].resetState(resetPayload, internalStoreProps.$$reset);
                   delete storeController.instances[instanceKey];
                 }
 
@@ -128,7 +146,7 @@ export function createUseStore(storeRegistry: StoreRegistry) {
         }
       },
       // eslint-disable-next-line react-hooks/exhaustive-deps
-      actualInstanceKeys,
+      [actualInstanceKeys, /*registerInstance*/],
     );
 
     useEffect(() => {

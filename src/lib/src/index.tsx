@@ -1,7 +1,7 @@
 import { createStoreRegistry } from './createStoreRegistry.tsx';
 
-export { type InstanceKey } from './types/index.tsx';
-export { type RequestState } from './types/index.tsx';
+export { type InstanceKey } from './types/InstanceKey.tsx';
+export { type RequestState } from './types/RequestState.tsx';
 export { type RequestAbortedState } from './types/RequestState/RequestAbortedState.tsx';
 export { type RequestFulfilledState } from './types/RequestState/RequestFulfilledState.tsx';
 export { type RequestIdleState } from './types/RequestState/RequestIdleState.tsx';

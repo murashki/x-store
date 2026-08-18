@@ -1,110 +1,16 @@
-import type { InitPayload } from './types/index.tsx';
-import type { InstanceKey } from './types/index.tsx';
-import type { Payload } from './types/index.tsx';
-import type { Reducer } from './types/index.tsx';
-import type { ReducerMap } from './types/index.tsx';
-import type { ResetPayload } from './types/index.tsx';
-import type { StoreState } from './types/index.tsx';
-
-export type Dispatch<
-  TStoreState extends StoreState = StoreState,
-> = {
-  <
-    TPayload extends void | Payload = void | Payload,
-  >(
-    instanceKey: InstanceKey,
-    payload: TPayload,
-    reducer: Reducer<TStoreState, TPayload>,
-  ): void
-};
-
-export type Listener<
-  TStoreState extends StoreState = StoreState,
-> = {
-  <
-    TPayload extends void | Payload = void | Payload,
-    TReducer extends Reducer<TStoreState, TPayload> = Reducer<TStoreState, TPayload>,
-  >(
-    instanceKey: InstanceKey,
-    payload: TPayload,
-    reducer: TReducer,
-  ): void;
-};
-
-export type ListenerAll<
-  TStoreState extends StoreState = StoreState,
-> = {
-  <
-    TPayload extends void | Payload = void | Payload,
-    TReducer extends Reducer<TStoreState, TPayload> = Reducer<TStoreState, TPayload>,
-  >(
-    instanceKey: InstanceKey,
-    payload: TPayload,
-    reducer: TReducer,
-  ): void;
-};
-
-export type Subscribe<
-  TStoreState extends StoreState = StoreState,
-> = {
-  (
-    instanceKey: InstanceKey,
-    listener: Listener<TStoreState>,
-  ): Unsubscribe
-};
-
-export type Unsubscribe = {
-  (): void;
-};
-
-export type SubscribeAll<
-  TStoreState extends StoreState = StoreState,
-> = {
-  (
-    listener: ListenerAll<TStoreState>,
-  ): UnsubscribeAll
-};
-
-export type UnsubscribeAll = {
-  (): void;
-};
-
-export type InitInstance<
-  TStoreState extends StoreState = StoreState,
-  TInitPayload extends void | Payload = void | Payload,
-  TResetPayload extends void | Payload = void | Payload,
-> = {
-  (
-    instanceKey: InstanceKey,
-    initialState: TStoreState,
-    initPayload: TInitPayload,
-    initReducer: Reducer<TStoreState, TInitPayload>,
-  ): ResetInstance<TStoreState, TResetPayload>;
-};
-
-export type ResetInstance<
-  TStoreState extends StoreState = StoreState,
-  TResetPayload extends void | Payload = void | Payload,
-> = {
-  (
-    resetPayload: TResetPayload,
-    resetReducer: Reducer<TStoreState, TResetPayload>,
-  ): void;
-};
-
-export type GetState<
-  TStoreState extends StoreState = StoreState,
-> = {
-  (
-    instanceKey: InstanceKey,
-  ): TStoreState;
-};
-
-export type GetStateAll<
-  TStoreState extends StoreState = StoreState,
-> = {
-  (): Record<InstanceKey, TStoreState>;
-};
+import type { Dispatch } from './types/InternalStore/Dispatch.tsx';
+import type { GetState } from './types/InternalStore/GetState.tsx';
+import type { GetStateAll } from './types/InternalStore/GetStateAll.tsx';
+import type { InitInstance } from './types/InternalStore/InitInstance.tsx';
+import type { InitPayload } from './types/InitPayload.tsx';
+import type { InstanceKey } from './types/InstanceKey.tsx';
+import type { Listener } from './types/InternalStore/Listener.tsx';
+import type { ListenerAll } from './types/InternalStore/ListenerAll.tsx';
+import type { ReducerMap } from './types/ReducerMap.tsx';
+import type { ResetPayload } from './types/ResetPayload.tsx';
+import type { StoreState } from './types/StoreState.tsx';
+import type { Subscribe } from './types/InternalStore/Subscribe.tsx';
+import type { SubscribeAll } from './types/InternalStore/SubscribeAll.tsx';
 
 export class InternalStore<
   TStoreState extends StoreState = StoreState,
@@ -134,28 +40,20 @@ export class InternalStore<
   };
 
   public initInstance: InitInstance<TStoreState, InitPayload<TReducerMap>, ResetPayload<TReducerMap>> = (instanceKey, initialState, initPayload, initReducer) => {
-    const initState = initReducer(initialState, initPayload);
-    this.state = { ...this.state, [instanceKey]: initState };
+    // TODO От множественной инициализации было решено отказаться. Надо кинуть предупреждение.
+    this.state = { ...this.state, [instanceKey]: this.state[instanceKey] ?? initialState };
+    // TODO От множественной инициализации было решено отказаться. Надо кинуть предупреждение.
+    this.listeners[instanceKey] = this.listeners[instanceKey] ?? new Set();
 
-    // TODO Убрать в логгер
-    console.log(`initInstance [store: ${this.name}, instance: ${String(instanceKey)}]:`);
-    console.dir(this.state);
+    this.dispatch(instanceKey, initPayload, initReducer);
 
     return (resetPayload, resetReducer) => {
-      const resetState = resetReducer(initState, resetPayload);
+      this.dispatch(instanceKey, resetPayload, resetReducer);
       // TODO Тут место для уничтожения состояния экземпляра хранилища через `delete this.state[instanceKey];`
-      this.state = { ...this.state, [instanceKey]: resetState };
-
-      // TODO Убрать в логгер
-      console.log(`resetInstance [store: ${this.name}, instance: ${String(instanceKey)}]:`);
-      console.dir(this.state);
     }
   };
 
   public subscribe: Subscribe<TStoreState> = (instanceKey, listener) => {
-    if ( ! this.listeners[instanceKey]) {
-      this.listeners[instanceKey] = new Set();
-    }
     this.listeners[instanceKey].add(listener);
     return () => {
       this.listeners[instanceKey].delete(listener);
@@ -182,7 +80,8 @@ export class InternalStore<
     this.listenersAll.forEach((listener) => listener(instanceKey, payload, reducer));
 
     // TODO Убрать в логгер
-    console.log(`dispatch [store: ${this.name}, instance: ${String(instanceKey)}, action: ${reducer.name}]:`);
-    console.dir({ payload, [`prev state`]: instanceState, [`next state`]: instanceNextState });
+    console.log(`dispatch [store: ${this.name}, instanceKey: ${String(instanceKey)}, action: ${reducer.name}]:`);
+    // TODO Убрать в логгер
+    console.log({ payload, [`prev state`]: instanceState, [`next state`]: instanceNextState });
   };
 }
