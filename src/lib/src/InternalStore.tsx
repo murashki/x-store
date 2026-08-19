@@ -49,7 +49,8 @@ export class InternalStore<
 
     return (resetPayload, resetReducer) => {
       this.dispatch(instanceKey, resetPayload, resetReducer);
-      // TODO Тут место для уничтожения состояния экземпляра хранилища через `delete this.state[instanceKey];`
+      delete this.state[instanceKey];
+      delete this.listeners[instanceKey];
     }
   };
 
@@ -57,9 +58,6 @@ export class InternalStore<
     this.listeners[instanceKey].add(listener);
     return () => {
       this.listeners[instanceKey].delete(listener);
-      if (this.listeners[instanceKey].size === 0) {
-        delete this.listeners[instanceKey];
-      }
     };
   };
 
