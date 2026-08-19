@@ -55,16 +55,16 @@ export class InternalStore<
   };
 
   public subscribe: Subscribe<TStoreState> = (instanceKey, listener) => {
-    this.listeners[instanceKey].add(listener);
+    const listeners = this.listeners[instanceKey].add(listener);
     return () => {
-      this.listeners[instanceKey].delete(listener);
+      listeners.delete(listener);
     };
   };
 
   public subscribeAll: SubscribeAll<TStoreState> = (listener) => {
-    this.listenersAll.add(listener);
+    const listenersAll = this.listenersAll.add(listener);
     return () => {
-      this.listenersAll.delete(listener);
+      listenersAll.delete(listener);
     };
   };
 
