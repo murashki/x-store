@@ -109,10 +109,9 @@ export function createUseStore(storeRegistry: StoreRegistry) {
                 const resetState = storeController.internalStore.initInstance(instanceKey, internalStoreProps.initialState, initPayload, internalStoreProps.$$init);
                 storeController.instances[instanceKey] = { owners: [], resetState };
                 if (storeController.earlySubscribers[instanceKey]) {
-                  for (const subscriber of storeController.earlySubscribers[instanceKey]) {
+                  for (const subscriber of [...storeController.earlySubscribers[instanceKey]]) {
                     subscriber();
                   }
-                  storeController.earlySubscribers[instanceKey].splice(0);
                 }
               }
               storeController.instances[instanceKey].owners.push(ownerKey);
@@ -152,7 +151,7 @@ export function createUseStore(storeRegistry: StoreRegistry) {
         }
       },
       // eslint-disable-next-line react-hooks/exhaustive-deps
-      [actualInstanceKeys, internalStoreProps, /*registerInstance*/],
+      [actualInstanceKeys, internalStoreProps, /* registerInstance */],
     );
 
     useEffect(() => {

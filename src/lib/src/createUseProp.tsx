@@ -2,12 +2,12 @@ import { useCallback } from 'react';
 import { useContext } from 'react';
 import { useMemo } from 'react';
 import { useState } from 'react';
-import { useRef } from 'react';
 import { useSyncExternalStoreWithSelector } from 'use-sync-external-store/with-selector';
 
 import type { InstanceKey } from './types/InstanceKey.tsx';
 import type { ReducerMap } from './types/ReducerMap.tsx';
 import type { StateLink } from './types/StateLink.tsx';
+import type { StoreController } from './types/StoreController.tsx';
 import type { StoreRegistry } from './types/StoreRegistry.tsx';
 import type { StoreState } from './types/StoreState.tsx';
 import type { UseProp } from './types/UseProp.tsx';
@@ -16,19 +16,45 @@ import { INTERNAL_STORE_PROPS_ACCESSOR } from './constants.tsx';
 import { createStoreController } from './createStoreController.tsx';
 
 export function createUseProp(storeRegistry: StoreRegistry): UseProp {
+  function subscribeEarly<
+    TStoreState extends StoreState,
+    TReducerMap extends ReducerMap<TStoreState>,
+  >(storeController: StoreController<TStoreState, TReducerMap>, instanceKey: InstanceKey, scheduleWake: () => void): () => void {
+    const earlySubscribers = storeController.earlySubscribers[instanceKey] = storeController.earlySubscribers[instanceKey] ?? [];
+    earlySubscribers.push(scheduleWake);
+
+    // Есть такой вариант, когда экземпляр хранилища может инициализироваться между рендером и
+    // подпиской и тогда цикл пробуждения ранних слушателей запускающийся в момент инициализации
+    // экземпляра хранилища проходит без нас. В этом случае запланируем пробуждение сами.
+    if (instanceKey in storeController.instances) {
+      scheduleWake();
+    }
+
+    return () => {
+      const scheduleWakeIndex = earlySubscribers.indexOf(scheduleWake);
+      // Свою запись удаляем только мы и только один раз, поэтому она обязана быть на месте - иначе
+      // сообщение в консоль, ибо мы что-то не учли.
+      if (scheduleWakeIndex === -1) {
+        console.warn(`Early subscriber is missing on unsubscribe [store: ${storeController.internalStore.name}, instanceKey: ${String(instanceKey)}]. This must never happen and may mean a bug inside the library itself. Please report it to the library developers.`);
+      }
+      else {
+        earlySubscribers.splice(scheduleWakeIndex, 1);
+      }
+      if (earlySubscribers.length === 0) {
+        delete storeController.earlySubscribers[instanceKey];
+      }
+    };
+  }
+
   return function useProp<
     TStoreState extends StoreState = StoreState,
     TReducerMap extends ReducerMap<TStoreState> = ReducerMap<TStoreState>,
     TStateName extends keyof TStoreState = keyof TStoreState,
-  >(
-    stateLink: StateLink<string, TStoreState, TReducerMap, TStateName>,
-    instanceKey?: InstanceKey,
-  ): TStoreState[TStateName] {
+  >(stateLink: StateLink<string, TStoreState, TReducerMap, TStateName>, instanceKey?: InstanceKey): TStoreState[TStateName] {
     const internalStoreProps = stateLink[INTERNAL_STORE_PROPS_ACCESSOR];
     const contextInstanceKey = useContext(internalStoreProps.context);
     const actualInstanceKey = instanceKey ?? contextInstanceKey ?? DEFAULT_INSTANCE_KEY;
-    const [, setUninitializedHack] = useState(0);
-    const earlySubscriberRef = useRef<{ earlySubscriber: null | (() => void) }>({ earlySubscriber: null });
+    const [, setWakeState] = useState(0);
 
     const storeController = createStoreController(storeRegistry, internalStoreProps);
 
@@ -48,16 +74,13 @@ export function createUseProp(storeRegistry: StoreRegistry): UseProp {
         };
       }
       else {
-        subscribe = () => () => undefined;
-        getSnapshot = () => internalStoreProps.initialState;
-        if ( ! storeController.earlySubscribers[actualInstanceKey]) {
-          storeController.earlySubscribers[actualInstanceKey] = [];
-        }
-        else if (earlySubscriberRef.current.earlySubscriber) {
-          storeController.earlySubscribers[actualInstanceKey].splice(storeController.earlySubscribers[actualInstanceKey].indexOf(earlySubscriberRef.current.earlySubscriber), 1);
-        }
-        const earlySubscriber = earlySubscriberRef.current.earlySubscriber = () => setUninitializedHack(state => state + 1);
-        storeController.earlySubscribers[actualInstanceKey].push(earlySubscriber);
+        subscribe = () => {
+          return subscribeEarly(storeController, actualInstanceKey, () => setWakeState(state => state + 1));
+        };
+
+        getSnapshot = () => {
+          return internalStoreProps.initialState;
+        };
       }
 
       return { getSnapshot, subscribe };
