@@ -4,6 +4,7 @@ import type { InstanceKey } from './types/InstanceKey.tsx';
 import type { ReducerMap } from './types/ReducerMap.tsx';
 import type { Store } from './types/Store.tsx';
 import type { StoreState } from './types/StoreState.tsx';
+import { DEFAULT_INSTANCE_KEY } from './constants.tsx';
 import { INTERNAL_STORE_PROPS_ACCESSOR } from './constants.tsx';
 
 export type StoreProviderProps<
@@ -12,7 +13,7 @@ export type StoreProviderProps<
   TReducerMap extends ReducerMap<TStoreState> = ReducerMap<TStoreState>,
 > = React.PropsWithChildren<{
   // initialState: Partial<TStoreState>;
-  instanceKey: InstanceKey;
+  instanceKey?: InstanceKey;
   store: Store<TStoreName, TStoreState, TReducerMap>;
 }>;
 
@@ -29,7 +30,7 @@ export function StoreProvider<
   const Context = store[INTERNAL_STORE_PROPS_ACCESSOR].context;
 
   return (
-    <Context.Provider value={instanceKey}>
+    <Context.Provider value={instanceKey ?? DEFAULT_INSTANCE_KEY}>
       {children}
     </Context.Provider>
   );

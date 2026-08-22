@@ -70,7 +70,8 @@ export function createUseProp(storeRegistry: StoreRegistry): UseProp {
         };
 
         getSnapshot = () => {
-          return storeController.internalStore.getState(actualInstanceKey);
+          // Экземпляр могли сбросить между рендером и этим чтением; до ререндера показываем начальное состояние.
+          return storeController.internalStore.getState(actualInstanceKey) ?? internalStoreProps.initialState;
         };
       }
       else {

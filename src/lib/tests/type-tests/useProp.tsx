@@ -28,8 +28,7 @@ import { createStoreRegistry } from '../../src';
     [`$$reset`]: (state) => state,
     reducer: (state): State => ({ ...state }),
   });
-  useProp(store.prop, 0);
-  useProp(store.prop, ``);
+  useProp(store.prop, `0`);
   useProp(store.prop, Symbol());
   // @ts-expect-error
   useProp(store.prop, null);

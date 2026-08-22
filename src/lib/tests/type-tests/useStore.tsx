@@ -98,9 +98,6 @@ import { createStoreRegistry } from '../../src';
   useStore(store, [], (init) => {
     return init();
   });
-  useStore(store, [0], (init) => {
-    return init();
-  });
   useStore(store, [`0`], (init) => {
     return init();
   });

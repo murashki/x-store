@@ -16,11 +16,11 @@ export class InternalStore<
   TStoreState extends StoreState = StoreState,
   TReducerMap extends ReducerMap<TStoreState> = ReducerMap<TStoreState>,
 > {
-  private listeners: Record<InstanceKey, Set<Listener<TStoreState>>>;
+  private readonly listeners: Record<InstanceKey, Set<Listener<TStoreState>>>;
 
-  private listenersAll: Set<ListenerAll<TStoreState>>;
+  private readonly listenersAll: Set<ListenerAll<TStoreState>>;
 
-  public name: string;
+  public readonly name: string;
 
   private state: Record<InstanceKey, TStoreState>;
 
@@ -42,22 +42,23 @@ export class InternalStore<
   public initInstance: InitInstance<TStoreState, InitPayload<TReducerMap>, ResetPayload<TReducerMap>> = (instanceKey, initialState, initPayload, initReducer) => {
     // TODO От множественной инициализации было решено отказаться. Надо кинуть предупреждение.
     this.state = { ...this.state, [instanceKey]: this.state[instanceKey] ?? initialState };
-    // TODO От множественной инициализации было решено отказаться. Надо кинуть предупреждение.
-    this.listeners[instanceKey] = this.listeners[instanceKey] ?? new Set();
 
     this.dispatch(instanceKey, initPayload, initReducer);
 
     return (resetPayload, resetReducer) => {
       this.dispatch(instanceKey, resetPayload, resetReducer);
       delete this.state[instanceKey];
-      delete this.listeners[instanceKey];
     }
   };
 
   public subscribe: Subscribe<TStoreState> = (instanceKey, listener) => {
-    const listeners = this.listeners[instanceKey].add(listener);
+    const listeners = this.listeners[instanceKey] = this.listeners[instanceKey] ?? new Set();
+    listeners.add(listener);
     return () => {
       listeners.delete(listener);
+      if (listeners.size === 0) {
+        delete this.listeners[instanceKey];
+      }
     };
   };
 
@@ -74,7 +75,10 @@ export class InternalStore<
 
     this.state = { ...this.state, [instanceKey]: instanceNextState };
 
-    this.listeners[instanceKey].forEach((listener) => listener(instanceKey, payload, reducer));
+    // Реестр слушателей существует только пока есть хотя бы одна подписка, а dispatch может
+    // легально вызываться, когда реальных слушателей может не быть ни одного. Отсутствие
+    // реестра здесь штатно - ставим `?`.
+    this.listeners[instanceKey]?.forEach((listener) => listener(instanceKey, payload, reducer));
     this.listenersAll.forEach((listener) => listener(instanceKey, payload, reducer));
 
     // TODO Убрать в логгер

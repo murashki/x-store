@@ -128,7 +128,7 @@ import { createStoreRegistry } from '../../src';
     reducer: (state): State => ({ ...state }),
   });
   const dispatchAction = useDispatcher(store.reducer);
-  dispatchAction(0);
+  dispatchAction(`0`);
 }
 
 {
@@ -167,7 +167,7 @@ import { createStoreRegistry } from '../../src';
     reducer: (state, payload: { prop: string }): State => ({ ...state, propA: payload.prop }),
   });
   const dispatchAction = useDispatcher(store.reducer);
-  dispatchAction(0, { prop: `` });
+  dispatchAction(`0`, { prop: `` });
 }
 
 {

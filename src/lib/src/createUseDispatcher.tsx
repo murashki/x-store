@@ -41,10 +41,11 @@ export function createUseDispatcher(storeRegistry: StoreRegistry) {
         let instanceKey: undefined | InstanceKey;
         let payload: TPayload;
 
-        if ([`number`, `symbol`, `string`].includes(typeof args[0])) {
+        if ([`symbol`, `string`].includes(typeof args[0])) {
           instanceKey = args[0] as undefined | InstanceKey;
           payload = args[1] as TPayload;
-        } else {
+        }
+        else {
           payload = args[0] as TPayload;
         }
 
