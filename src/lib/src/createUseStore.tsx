@@ -80,79 +80,78 @@ export function createUseStore(storeRegistry: StoreRegistry) {
     const actualInstanceKeys = useMemo(() => instanceKeys, instanceKeys);
     const ownerKeyRef = useRef<{ ownerKey: symbol }>({ ownerKey: Symbol(`ownerKey`) });
     const initInstancesRef = useRef<{ initInstances: Record<InstanceKey, InitInstance> }>({ initInstances: {} });
+    const registerInstanceRef = useRef<{ registerInstance: RegisterInstance<TInitPayload, TResetPayload> | RegisterDefaultInstance<TInitPayload, TResetPayload> }>({ registerInstance });
+    registerInstanceRef.current.registerInstance = registerInstance;
 
-    useEffect(
-      () => {
-        const { ownerKey } = ownerKeyRef.current;
-        const { initInstances } = initInstancesRef.current;
+    useEffect(() => {
+      const { ownerKey } = ownerKeyRef.current;
+      const { initInstances } = initInstancesRef.current;
+      const { registerInstance } = registerInstanceRef.current;
 
-        for (const instanceKey of actualInstanceKeys) {
-          // TODO А что по поводу альтернативного сценария?
-          if ( ! initInstances[instanceKey]) {
-            const initInstance = (initPayload: TInitPayload) => {
-              const storeController = createStoreController(storeRegistry, internalStoreProps);
+      for (const instanceKey of actualInstanceKeys) {
+        // TODO А что по поводу альтернативного сценария?
+        if ( ! initInstances[instanceKey]) {
+          const initInstance = (initPayload: TInitPayload) => {
+            const storeController = createStoreController(storeRegistry, internalStoreProps);
 
-              if (storeController.instances[instanceKey]) {
-                // TODO Множественная инициализация хранилища
-                //   Архитектура позволяет несколько раз инициализировать одно и то же хранилище с
-                //   одним и тем же ключом, однако возможно от этого стоит отказаться. Возможно
-                //   стоит просить разработчиков проверять инициализирована ли стора и
-                //   инициализировать ее при необходимости.
-                console.warn(`Duplicate store initialization [store: ${storeController.internalStore.name}, instanceKey: ${instanceKey.toString()}]`);
+            if (storeController.instances[instanceKey]) {
+              // TODO Множественная инициализация хранилища
+              //   Архитектура позволяет несколько раз инициализировать одно и то же хранилище с
+              //   одним и тем же ключом, однако возможно от этого стоит отказаться. Возможно
+              //   стоит просить разработчиков проверять инициализирована ли стора и
+              //   инициализировать ее при необходимости.
+              console.warn(`Duplicate store initialization [store: ${storeController.internalStore.name}, instanceKey: ${instanceKey.toString()}]`);
+            }
+            else {
+              // TODO Убрать в логгер
+              console.log(`Store instance initialization [store: ${storeController.internalStore.name}, instanceKey: ${instanceKey.toString()}]`);
+              // TODO Убрать в логгер
+              console.log({ storeRegistry });
+
+              const resetState = storeController.internalStore.initInstance(instanceKey, internalStoreProps.initialState, initPayload, internalStoreProps.$$init);
+              storeController.instances[instanceKey] = { owners: [], resetState };
+              if (storeController.earlySubscribers[instanceKey]) {
+                for (const subscriber of [...storeController.earlySubscribers[instanceKey]]) {
+                  subscriber();
+                }
               }
-              else {
+            }
+            storeController.instances[instanceKey].owners.push(ownerKey);
+
+            return (resetPayload: TResetPayload): typeof STORE_INSTANCE_UNREGISTERED => {
+              storeController.instances[instanceKey].owners.splice(storeController.instances[instanceKey].owners.indexOf(ownerKey), 1);
+
+              if (storeController.instances[instanceKey].owners.length === 0) {
                 // TODO Убрать в логгер
-                console.log(`Store instance initialization [store: ${storeController.internalStore.name}, instanceKey: ${instanceKey.toString()}]`);
+                console.log(`Store instance resetting [store: ${storeController.internalStore.name}, instanceKey: ${instanceKey.toString()}]`);
                 // TODO Убрать в логгер
                 console.log({ storeRegistry });
 
-                const resetState = storeController.internalStore.initInstance(instanceKey, internalStoreProps.initialState, initPayload, internalStoreProps.$$init);
-                storeController.instances[instanceKey] = { owners: [], resetState };
-                if (storeController.earlySubscribers[instanceKey]) {
-                  for (const subscriber of [...storeController.earlySubscribers[instanceKey]]) {
-                    subscriber();
-                  }
-                }
+                // TODO Надо ли оповещать слушателей если один экземпляр хранилища удалился
+                storeController.instances[instanceKey].resetState(resetPayload, internalStoreProps.$$reset);
+                delete storeController.instances[instanceKey];
               }
-              storeController.instances[instanceKey].owners.push(ownerKey);
 
-              return (resetPayload: TResetPayload): typeof STORE_INSTANCE_UNREGISTERED => {
-                storeController.instances[instanceKey].owners.splice(storeController.instances[instanceKey].owners.indexOf(ownerKey), 1);
+              delete initInstances[instanceKey];
 
-                if (storeController.instances[instanceKey].owners.length === 0) {
-                  // TODO Убрать в логгер
-                  console.log(`Store instance resetting [store: ${storeController.internalStore.name}, instanceKey: ${instanceKey.toString()}]`);
-                  // TODO Убрать в логгер
-                  console.log({ storeRegistry });
-
-                  // TODO Надо ли оповещать слушателей если один экземпляр хранилища удалился
-                  storeController.instances[instanceKey].resetState(resetPayload, internalStoreProps.$$reset);
-                  delete storeController.instances[instanceKey];
-                }
-
-                delete initInstances[instanceKey];
-
-                return STORE_INSTANCE_UNREGISTERED;
-              };
-            }
-
-            initInstances[instanceKey] = {
-              resetInstance: instanceKey === DEFAULT_INSTANCE_KEY
-                ? (registerInstance as RegisterDefaultInstance<TInitPayload, TResetPayload>)(initInstance)
-                : (registerInstance as RegisterInstance<TInitPayload, TResetPayload>)(initInstance, instanceKey),
+              return STORE_INSTANCE_UNREGISTERED;
             };
           }
-        }
 
-        for (const instanceKey of [...Object.keys(initInstances), ...Object.getOwnPropertySymbols(initInstances)]) {
-          if ( ! actualInstanceKeys.includes(instanceKey)) {
-            initInstances[instanceKey].resetInstance();
-          }
+          initInstances[instanceKey] = {
+            resetInstance: instanceKey === DEFAULT_INSTANCE_KEY
+              ? (registerInstance as RegisterDefaultInstance<TInitPayload, TResetPayload>)(initInstance)
+              : (registerInstance as RegisterInstance<TInitPayload, TResetPayload>)(initInstance, instanceKey),
+          };
         }
-      },
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-      [actualInstanceKeys, internalStoreProps, /* registerInstance */],
-    );
+      }
+
+      for (const instanceKey of [...Object.keys(initInstances), ...Object.getOwnPropertySymbols(initInstances)]) {
+        if ( ! actualInstanceKeys.includes(instanceKey)) {
+          initInstances[instanceKey].resetInstance();
+        }
+      }
+    }, [actualInstanceKeys, internalStoreProps]);
 
     useEffect(() => {
       const { initInstances } = initInstancesRef.current;
