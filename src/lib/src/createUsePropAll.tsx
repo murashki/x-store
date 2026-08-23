@@ -1,5 +1,4 @@
 import { useCallback } from 'react';
-import { useRef } from 'react';
 import { useSyncExternalStoreWithSelector } from 'use-sync-external-store/with-selector';
 
 import type { InstanceKey } from './types/InstanceKey.tsx';
@@ -16,12 +15,8 @@ export function createUsePropAll(storeRegistry: StoreRegistry): UsePropAll {
     TStoreState extends StoreState = StoreState,
     TReducerMap extends ReducerMap<TStoreState> = ReducerMap<TStoreState>,
     TStateName extends keyof TStoreState = keyof TStoreState,
-  >(
-    stateLink: StateLink<string, TStoreState, TReducerMap, TStateName>,
-    instanceKeys?: InstanceKey[] | ((state: TStoreState) => boolean),
-  ): [instanceKey: InstanceKey, state: TStoreState[TStateName]][] {
+  >(stateLink: StateLink<string, TStoreState, TReducerMap, TStateName>, instanceKeys?: InstanceKey[] | ((state: TStoreState) => boolean)): [instanceKey: InstanceKey, state: TStoreState[TStateName]][] {
     const internalStoreProps = stateLink[INTERNAL_STORE_PROPS_ACCESSOR];
-    const prevStateAllRef = useRef<{ prevStateAll: [instanceKey: InstanceKey, state: TStoreState[TStateName]][] }>({ prevStateAll: [] });
 
     const storeController = createStoreController(storeRegistry, internalStoreProps);
 
@@ -49,16 +44,9 @@ export function createUsePropAll(storeRegistry: StoreRegistry): UsePropAll {
         });
       }
 
-      const nextStateAll = actualInstanceKeys.map((instanceKey): [instanceKey: InstanceKey, state: TStoreState[TStateName]] => {
+      return actualInstanceKeys.map((instanceKey): [instanceKey: InstanceKey, state: TStoreState[TStateName]] => {
         return [instanceKey, stateAll[instanceKey][stateLink.stateName]];
       });
-
-      if (isEqual(prevStateAllRef.current.prevStateAll, nextStateAll)) {
-        return prevStateAllRef.current.prevStateAll;
-      }
-      else {
-        return prevStateAllRef.current.prevStateAll = nextStateAll;
-      }
     }, [instanceKeys, stateLink]);
 
     return useSyncExternalStoreWithSelector(
@@ -66,23 +54,18 @@ export function createUsePropAll(storeRegistry: StoreRegistry): UsePropAll {
       getSnapshot,
       null,
       selector,
+      isEqual,
     );
   };
 }
 
-function isEqual(
-  prevStateAll: [instanceKey: InstanceKey, state: StoreState][],
-  stateAll: [instanceKey: InstanceKey, state: StoreState][],
-) {
+function isEqual(prevStateAll: [instanceKey: InstanceKey, state: unknown][], stateAll: [instanceKey: InstanceKey, state: unknown][]) {
   if (prevStateAll.length !== stateAll.length) {
     return false;
   }
   else {
-    return prevStateAll.every(([prevInstanceKey, prevState]) => {
-      const stateAllEntry = stateAll.find(([instanceKey]) => {
-        return prevInstanceKey === instanceKey;
-      });
-      return stateAllEntry && stateAllEntry[1] === prevState;
+    return prevStateAll.every(([prevInstanceKey, prevState], index) => {
+      return prevInstanceKey === stateAll[index][0] && prevState === stateAll[index][1];
     });
   }
 }
