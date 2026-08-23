@@ -65,7 +65,7 @@ export function createUseStore(storeRegistry: StoreRegistry) {
     let registerInstance: RegisterInstance<TInitPayload, TResetPayload> | RegisterDefaultInstance<TInitPayload, TResetPayload>;
 
     const internalStoreProps = storeRef.current.store[INTERNAL_STORE_PROPS_ACCESSOR] as InternalStoreProps<string, TStoreState, TReducerMap>;
-    const contextInstanceKey = useContext(internalStoreProps.context);
+    const contextInstanceKey = useContext(internalStoreProps.context)?.instanceKey;
 
     if (typeof args[0] === `function`) {
       instanceKeys = [contextInstanceKey ?? DEFAULT_INSTANCE_KEY] as InstanceKey[];

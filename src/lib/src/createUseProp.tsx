@@ -52,7 +52,7 @@ export function createUseProp(storeRegistry: StoreRegistry): UseProp {
     TStateName extends keyof TStoreState = keyof TStoreState,
   >(stateLink: StateLink<string, TStoreState, TReducerMap, TStateName>, instanceKey?: InstanceKey): TStoreState[TStateName] {
     const internalStoreProps = stateLink[INTERNAL_STORE_PROPS_ACCESSOR];
-    const contextInstanceKey = useContext(internalStoreProps.context);
+    const contextInstanceKey = useContext(internalStoreProps.context)?.instanceKey;
     const actualInstanceKey = instanceKey ?? contextInstanceKey ?? DEFAULT_INSTANCE_KEY;
     const [, setWakeState] = useState(0);
 

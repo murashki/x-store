@@ -1,11 +1,11 @@
 import React from 'react';
 
-import type { InstanceKey } from './types/InstanceKey.tsx';
 import type { InternalStoreProps } from './types/InternalStoreProps.tsx';
 import type { Payload } from './types/Payload.tsx';
 import type { Reducer } from './types/Reducer.tsx';
 import type { ReducerMap } from './types/ReducerMap.tsx';
 import type { Store } from './types/Store.tsx';
+import type { StoreContextValue } from './types/StoreContextValue.tsx';
 import type { StoreState } from './types/StoreState.tsx';
 import { INTERNAL_STORE_PROPS_ACCESSOR } from './constants.tsx';
 import { REDUCER_LINK } from './constants.tsx';
@@ -35,7 +35,7 @@ export function createStore<
   initialState: TStoreState,
   reducers: CheckReducerMap<TStoreState, TReducerMap>,
 ): Store<TStoreName, TStoreState, TReducerMap> {
-  const context = React.createContext<null | InstanceKey>(null);
+  const context = React.createContext<null | StoreContextValue>(null);
 
   const internalStoreProps: InternalStoreProps<TStoreName, TStoreState, TReducerMap> = {
     $$init: reducers.$$init as Reducer<TStoreState>,

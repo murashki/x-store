@@ -1,7 +1,7 @@
 import React from 'react';
 
-import type { InstanceKey } from './InstanceKey.tsx';
 import type { ReducerMap } from './ReducerMap.tsx';
+import type { StoreContextValue } from './StoreContextValue.tsx';
 import type { StoreState } from './StoreState.tsx';
 
 export type InternalStoreProps<
@@ -11,7 +11,7 @@ export type InternalStoreProps<
 > = {
   $$init: TReducerMap[`$$init`];
   $$reset: TReducerMap[`$$reset`];
-  context: React.Context<null | InstanceKey>;
+  context: React.Context<null | StoreContextValue>;
   initialState: TStoreState;
   name: TStoreName;
   uniqKey: symbol;

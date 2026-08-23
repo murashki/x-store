@@ -21,7 +21,7 @@ export function createUseDispatcher(storeRegistry: StoreRegistry) {
   >(
     reducerLink: ReducerLink<string, TStoreState, TReducerMap, TReducerName>,
   ): Dispatcher<TPayload> {
-    const contextInstanceKey = useContext(reducerLink[INTERNAL_STORE_PROPS_ACCESSOR].context);
+    const contextInstanceKey = useContext(reducerLink[INTERNAL_STORE_PROPS_ACCESSOR].context)?.instanceKey;
 
     return useMemo(() => {
       const internalStoreProps = reducerLink[INTERNAL_STORE_PROPS_ACCESSOR];
