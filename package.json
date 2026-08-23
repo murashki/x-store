@@ -27,10 +27,12 @@
     "dev": "vite",
     "lint": "eslint .",
     "preview": "vite preview",
-    "ts-lint": "tsc --noEmit --project ./tsconfig.json",
-    "ts-lint:watch": "tsc --noEmit --watch --project ./tsconfig.json",
+    "ts-lint": "tsc --noEmit --project ./tsconfig.app.json",
+    "ts-lint:node": "tsc --noEmit --project ./tsconfig.node.json",
+    "ts-lint:node:watch": "tsc --noEmit --watch --project ./tsconfig.node.json",
     "ts-lint:type-tests": "tsc --noEmit --project ./tsconfig.type-tests.json",
-    "ts-lint:type-tests:watch": "tsc --noEmit --watch --project ./tsconfig.type-tests.json"
+    "ts-lint:type-tests:watch": "tsc --noEmit --watch --project ./tsconfig.type-tests.json",
+    "ts-lint:watch": "tsc --noEmit --watch --project ./tsconfig.app.json"
   },
   "type": "module",
   "version": "0.0.0"

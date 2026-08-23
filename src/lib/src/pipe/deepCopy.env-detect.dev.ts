@@ -15,29 +15,27 @@ function deepCopyInner<
     return data;
   }
   else if (Array.isArray(data)) {
-    const nextData = [] as TData;
+    const nextData = [] as unknown[];
     const nextCircleHack = [...circleHack, [data, nextData]];
 
-    data.forEach((member, index) => {
-      // @ts-ignore
-      nextData[index] = deepCopy(member, nextCircleHack)
-    });
+    for (let index = 0; index < data.length; index++) {
+      nextData[index] = deepCopyInner(data[index], nextCircleHack);
+    }
 
-    return nextData;
+    return nextData as TData;
   }
   else if (typeof data === `function`) {
     return (() => {}) as TData;
   }
   else if (typeof data === `object`) {
-    const nextData = {} as TData;
+    const nextData = {} as Record<string | symbol, unknown>;
     const nextCircleHack = [...circleHack, [data, nextData]];
 
-    [...Object.getOwnPropertyNames(data), ...Object.getOwnPropertySymbols(data)].forEach((key) => {
-      // @ts-ignore
-      nextData[key] = deepCopy(data[key], nextCircleHack);
-    });
+    for (const key of [...Object.getOwnPropertyNames(data), ...Object.getOwnPropertySymbols(data)]) {
+      nextData[key] = deepCopyInner((data as Record<string | symbol, unknown>)[key], nextCircleHack);
+    }
 
-    return nextData;
+    return nextData as TData;
   }
   else {
     return data;
