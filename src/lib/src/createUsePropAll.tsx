@@ -9,7 +9,7 @@ import type { StoreRegistry } from './types/StoreRegistry.tsx';
 import type { StoreState } from './types/StoreState.tsx';
 import type { UsePropAll } from './types/UsePropAll.tsx';
 import { INTERNAL_STORE_PROPS_ACCESSOR } from './constants.tsx';
-import { InternalStore } from './InternalStore.tsx';
+import { createStoreController } from './createStoreController.tsx';
 
 export function createUsePropAll(storeRegistry: StoreRegistry): UsePropAll {
   return function usePropAll<
@@ -23,48 +23,41 @@ export function createUsePropAll(storeRegistry: StoreRegistry): UsePropAll {
     const internalStoreProps = stateLink[INTERNAL_STORE_PROPS_ACCESSOR];
     const prevStateAllRef = useRef<{ prevStateAll: [instanceKey: InstanceKey, state: TStoreState[TStateName]][] }>({ prevStateAll: [] });
 
-    if ( ! (internalStoreProps.uniqKey in storeRegistry)) {
-      throw new Error(`Store "${internalStoreProps.name}" is not registered.`);
-    }
+    const storeController = createStoreController(storeRegistry, internalStoreProps);
 
-    const internalStore = storeRegistry[internalStoreProps.uniqKey].internalStore as InternalStore<TStoreState, TReducerMap>;
-
-    const subscribe  = useCallback((listener: () => void) => {
-      return internalStore.subscribeAll(listener);
-    }, [internalStore]);
+    const subscribe = useCallback((listener: () => void) => {
+      return storeController.internalStore.subscribeAll(listener);
+    }, [storeController]);
 
     const getSnapshot = useCallback(() => {
-      return internalStore.getStateAll();
-    }, [internalStore]);
+      return storeController.internalStore.getStateAll();
+    }, [storeController]);
 
-    const selector = useCallback((state: Record<string | symbol, TStoreState>) => {
-      let stateAll: [instanceKey: InstanceKey, state: TStoreState[TStateName]][];
+    const selector = useCallback((stateAll: Record<InstanceKey, TStoreState>) => {
+      let actualInstanceKeys: InstanceKey[];
       if (instanceKeys == null) {
-        stateAll = Object.entries(state)
-          .map(([instanceKey, state]) => {
-            return [instanceKey, state[stateLink.stateName]];
-          });
+        actualInstanceKeys = [...Object.keys(stateAll), ...Object.getOwnPropertySymbols(stateAll)];
       }
       else if (typeof instanceKeys === `function`) {
-        stateAll = Object.entries(state)
-          .filter(([_instanceKey, state]) => {
-            return instanceKeys(state);
-          })
-          .map(([instanceKey, state]) => {
-            return [instanceKey, state[stateLink.stateName]];
-          });
-      }
-      else {
-        stateAll = instanceKeys.map((instanceKey) => {
-          return [instanceKey, state[instanceKey][stateLink.stateName]];
+        actualInstanceKeys = [...Object.keys(stateAll), ...Object.getOwnPropertySymbols(stateAll)].filter((instanceKey) => {
+          return instanceKeys(stateAll[instanceKey]);
         });
       }
-      if (isEqual(prevStateAllRef.current.prevStateAll, stateAll)) {
-        prevStateAllRef.current.prevStateAll = stateAll;
-        return stateAll;
+      else {
+        actualInstanceKeys = instanceKeys.filter((instanceKey) => {
+          return instanceKey in stateAll;
+        });
+      }
+
+      const nextStateAll = actualInstanceKeys.map((instanceKey): [instanceKey: InstanceKey, state: TStoreState[TStateName]] => {
+        return [instanceKey, stateAll[instanceKey][stateLink.stateName]];
+      });
+
+      if (isEqual(prevStateAllRef.current.prevStateAll, nextStateAll)) {
+        return prevStateAllRef.current.prevStateAll;
       }
       else {
-        return prevStateAllRef.current.prevStateAll;
+        return prevStateAllRef.current.prevStateAll = nextStateAll;
       }
     }, [instanceKeys, stateLink]);
 
