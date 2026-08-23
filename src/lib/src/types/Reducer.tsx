@@ -6,7 +6,7 @@ export type Reducer<
   TPayload extends void | Payload = void | Payload,
 > = {
   (
-    state: TStoreState,
+    state: TStoreState & { $$initialized: boolean },
     payload: TPayload,
   ): TStoreState;
 };

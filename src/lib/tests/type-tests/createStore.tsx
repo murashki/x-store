@@ -195,3 +195,49 @@ import { createStore } from '../../src';
   // @ts-expect-error
   ((_value: void) => null)(store.reducer);
 }
+
+{
+  type State = { [`$$initialized`]: boolean, prop: string };
+  const initialState: State = { [`$$initialized`]: false, prop: `` };
+  createStore(
+    ``,
+    // @ts-expect-error
+    initialState,
+    {
+      [`$$init`]: (state) => state,
+      [`$$reset`]: (state) => state,
+    },
+  );
+}
+
+{
+  type State = { prop: string };
+  const initialState: State = { prop: `` };
+  createStore(``, initialState, {
+    [`$$init`]: (state) => state,
+    // @ts-expect-error
+    [`$$initialized`]: (state) => state,
+    [`$$reset`]: (state) => state,
+  });
+}
+
+{
+  type State = { prop: string };
+  const initialState: State = { prop: `` };
+  createStore(``, initialState, {
+    [`$$init`]: (state) => {
+      ((_initialized: boolean) => null)(state.$$initialized);
+      return state;
+    },
+    [`$$reset`]: (state) => {
+      ((_initialized: boolean) => null)(state.$$initialized);
+      return state;
+    },
+    reducer: (state) => {
+      ((_initialized: boolean) => null)(state.$$initialized);
+      // @ts-expect-error
+      ((_initialized: string) => null)(state.$$initialized);
+      return state;
+    },
+  });
+}

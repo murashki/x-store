@@ -48,3 +48,34 @@ import { createStoreRegistry } from '../../src';
   // @ts-expect-error
   ((_prop: number) => null)(prop);
 }
+
+{
+  const { useProp } = createStoreRegistry();
+  type State = { prop: string };
+  const initialState: State = { prop: `` };
+  const store = createStore(``, initialState, {
+    [`$$init`]: (state) => state,
+    [`$$reset`]: (state) => state,
+    reducer: (state): State => ({ ...state }),
+  });
+  useProp(store[`$$initialized`]);
+  useProp(store[`$$initialized`], `0`);
+  useProp(store[`$$initialized`], Symbol());
+  // @ts-expect-error
+  useProp(store[`$$initialized`], null);
+}
+
+{
+  const { useProp } = createStoreRegistry();
+  type State = { prop: string };
+  const initialState: State = { prop: `` };
+  const store = createStore(``, initialState, {
+    [`$$init`]: (state) => state,
+    [`$$reset`]: (state) => state,
+    reducer: (state): State => ({ ...state }),
+  });
+  const initialized = useProp(store[`$$initialized`]);
+  ((_initialized: boolean) => null)(initialized);
+  // @ts-expect-error
+  ((_initialized: string) => null)(initialized);
+}

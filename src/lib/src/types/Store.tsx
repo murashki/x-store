@@ -1,4 +1,5 @@
 import { INTERNAL_STORE_PROPS_ACCESSOR } from '../constants.tsx';
+import type { InitializedStateLink } from './InitializedStateLink.tsx';
 import type { InternalStoreProps } from './InternalStoreProps.tsx';
 import type { ReducerMap } from './ReducerMap.tsx';
 import type { ReducerLink } from './ReducerLink.tsx';
@@ -13,6 +14,7 @@ export type Store<
   & {
     [INTERNAL_STORE_PROPS_ACCESSOR]: InternalStoreProps<TStoreName, TStoreState, TReducerMap>;
     $$init: void;
+    $$initialized: InitializedStateLink<TStoreName, TStoreState, TReducerMap>;
     $$reset: void;
   }
   & {

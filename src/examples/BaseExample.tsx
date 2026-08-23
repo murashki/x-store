@@ -69,11 +69,16 @@ type ProductNameChangePayload = {
 };
 
 export const App = React.memo(function App() {
+  const appStoreInitialized = useProp(appStore.$$initialized);
   const formOpen = useProp(appStore.formOpen);
+  const formStoreInitialized = useProp(formStore.$$initialized);
   const productName = useProp(formStore.productName);
   const dispatchFormToggle = useDispatcher(appStore.formToggle);
 
   console.log(`App render`, { formOpen, productName });
+
+  console.log(`appStoreInitialized`, appStoreInitialized);
+  console.log(`formStoreInitialized`, formStoreInitialized);
 
   useEffect(() => {
     console.log(`App effect`);

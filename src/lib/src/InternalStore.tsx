@@ -43,12 +43,18 @@ export class InternalStore<
     // TODO От множественной инициализации было решено отказаться. Надо кинуть предупреждение.
     this.state = { ...this.state, [instanceKey]: this.state[instanceKey] ?? initialState };
 
-    this.dispatch(instanceKey, initPayload, initReducer);
+    const $$init: typeof initReducer = (state, payload) => {
+      return { ...initReducer(state, payload), $$initialized: true };
+    };
+    this.dispatch(instanceKey, initPayload, $$init);
 
     return (resetPayload, resetReducer) => {
-      this.dispatch(instanceKey, resetPayload, resetReducer);
+      const $$reset: typeof resetReducer = (state, payload) => {
+        return { ...resetReducer(state, payload), $$initialized: false };
+      };
+      this.dispatch(instanceKey, resetPayload, $$reset);
       delete this.state[instanceKey];
-    }
+    };
   };
 
   public subscribe: Subscribe<TStoreState> = (instanceKey, listener) => {
@@ -71,7 +77,8 @@ export class InternalStore<
 
   public dispatch: Dispatch<TStoreState> = (instanceKey, payload, reducer) => {
     const instanceState = this.state[instanceKey];
-    const instanceNextState = reducer(instanceState, payload);
+    const reducerNextState = reducer(instanceState as TStoreState & { $$initialized: boolean }, payload);
+    const instanceNextState = { ...reducerNextState, $$initialized: reducerNextState.$$initialized ?? instanceState?.$$initialized ?? false };
 
     this.state = { ...this.state, [instanceKey]: instanceNextState };
 

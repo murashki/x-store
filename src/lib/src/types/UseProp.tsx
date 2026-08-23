@@ -1,9 +1,17 @@
+import type { InitializedStateLink } from './InitializedStateLink.tsx';
 import type { InstanceKey } from './InstanceKey.tsx';
 import type { ReducerMap } from './ReducerMap.tsx';
 import type { StateLink } from './StateLink.tsx';
 import type { StoreState } from './StoreState.tsx';
 
 export type UseProp = {
+  <
+    TStoreState extends StoreState = StoreState,
+    TReducerMap extends ReducerMap<TStoreState> = ReducerMap<TStoreState>,
+  >(
+    stateLink: InitializedStateLink<string, TStoreState, TReducerMap>,
+    instanceKey?: InstanceKey,
+  ): boolean;
   <
     TStoreState extends StoreState = StoreState,
     TReducerMap extends ReducerMap<TStoreState> = ReducerMap<TStoreState>,
