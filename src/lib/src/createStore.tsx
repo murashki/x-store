@@ -42,13 +42,13 @@ export function createStore<
 >(
   name: TStoreName,
   initialState: TStoreState & CheckInitialState<TStoreState>,
-  reducers: TReducerMap & CheckReducerMap<TStoreState, TReducerMap>,
+  reducerMap: TReducerMap & CheckReducerMap<TStoreState, TReducerMap>,
 ): Store<TStoreName, TStoreState, TReducerMap> {
   const context = React.createContext<null | StoreContextValue>(null);
 
   const internalStoreProps: InternalStoreProps<TStoreName, TStoreState, TReducerMap> = {
-    $$init: reducers.$$init,
-    $$reset: reducers.$$reset,
+    $$init: reducerMap.$$init,
+    $$reset: reducerMap.$$reset,
     context,
     initialState: { ...initialState, $$initialized: false },
     name,
@@ -67,17 +67,17 @@ export function createStore<
     };
   }
 
-  store[`$$initialized`] = {
+  store.$$initialized = {
     [INTERNAL_STORE_PROPS_ACCESSOR]: internalStoreProps,
     stateName: `$$initialized`,
     type: STATE_LINK,
   };
 
-  for (const key in reducers) {
+  for (const key in reducerMap) {
     if ( ! (key in initialState) && ! [`$$init`, `$$reset`].includes(key)) {
       store[key] = {
         [INTERNAL_STORE_PROPS_ACCESSOR]: internalStoreProps,
-        reducer: reducers[key],
+        reducer: reducerMap[key],
         reducerName: key,
         type: REDUCER_LINK,
       };

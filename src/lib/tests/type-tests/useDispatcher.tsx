@@ -18,8 +18,8 @@ import { createStoreRegistry } from '../../src';
   type State = { propA: string, propB: number };
   const initialState: State = { propA: ``, propB: 0 };
   const store = createStore(``, initialState, {
-    [`$$init`]: (state) => state,
-    [`$$reset`]: (state) => state,
+    $$init: (state) => state,
+    $$reset: (state) => state,
     reducer: (state): State => ({ ...state }),
   });
   useDispatcher(store.reducer);
@@ -30,8 +30,8 @@ import { createStoreRegistry } from '../../src';
   type State = { propA: string, propB: number };
   const initialState: State = { propA: ``, propB: 0 };
   const store = createStore(``, initialState, {
-    [`$$init`]: (state) => state,
-    [`$$reset`]: (state) => state,
+    $$init: (state) => state,
+    $$reset: (state) => state,
     reducer: (state, payload: { prop: string }): State => ({ ...state, propA: payload.prop }),
   });
   useDispatcher(store.reducer);
@@ -42,8 +42,8 @@ import { createStoreRegistry } from '../../src';
   type State = { propA: string, propB: number };
   const initialState: State = { propA: ``, propB: 0 };
   const store = createStore(``, initialState, {
-    [`$$init`]: (state) => state,
-    [`$$reset`]: (state) => state,
+    $$init: (state) => state,
+    $$reset: (state) => state,
     reducer: (state): State => ({ ...state }),
   });
   // @ts-expect-error
@@ -55,8 +55,8 @@ import { createStoreRegistry } from '../../src';
   type State = { propA: string, propB: number };
   const initialState: State = { propA: ``, propB: 0 };
   const store = createStore(``, initialState, {
-    [`$$init`]: (state) => state,
-    [`$$reset`]: (state) => state,
+    $$init: (state) => state,
+    $$reset: (state) => state,
     reducer: (state): State => ({ ...state }),
   });
   const dispatchAction = useDispatcher(store.reducer);
@@ -68,8 +68,8 @@ import { createStoreRegistry } from '../../src';
   type State = { propA: string, propB: number };
   const initialState: State = { propA: ``, propB: 0 };
   const store = createStore(``, initialState, {
-    [`$$init`]: (state) => state,
-    [`$$reset`]: (state) => state,
+    $$init: (state) => state,
+    $$reset: (state) => state,
     reducer: (state): State => ({ ...state }),
   });
   const dispatchAction = useDispatcher(store.reducer);
@@ -82,8 +82,8 @@ import { createStoreRegistry } from '../../src';
   type State = { propA: string, propB: number };
   const initialState: State = { propA: ``, propB: 0 };
   const store = createStore(``, initialState, {
-    [`$$init`]: (state) => state,
-    [`$$reset`]: (state) => state,
+    $$init: (state) => state,
+    $$reset: (state) => state,
     reducer: (state, payload: { prop: string }): State => ({ ...state, propA: payload.prop }),
   });
   const dispatchAction = useDispatcher(store.reducer);
@@ -95,8 +95,8 @@ import { createStoreRegistry } from '../../src';
   type State = { propA: string, propB: number };
   const initialState: State = { propA: ``, propB: 0 };
   const store = createStore(``, initialState, {
-    [`$$init`]: (state) => state,
-    [`$$reset`]: (state) => state,
+    $$init: (state) => state,
+    $$reset: (state) => state,
     reducer: (state, payload: { prop: string }): State => ({ ...state, propA: payload.prop }),
   });
   const dispatchAction = useDispatcher(store.reducer);
@@ -109,8 +109,8 @@ import { createStoreRegistry } from '../../src';
   type State = { propA: string, propB: number };
   const initialState: State = { propA: ``, propB: 0 };
   const store = createStore(``, initialState, {
-    [`$$init`]: (state) => state,
-    [`$$reset`]: (state) => state,
+    $$init: (state) => state,
+    $$reset: (state) => state,
     reducer: (state, payload: { prop: string }): State => ({ ...state, propA: payload.prop }),
   });
   const dispatchAction = useDispatcher(store.reducer);
@@ -123,8 +123,8 @@ import { createStoreRegistry } from '../../src';
   type State = { propA: string, propB: number };
   const initialState: State = { propA: ``, propB: 0 };
   const store = createStore(``, initialState, {
-    [`$$init`]: (state) => state,
-    [`$$reset`]: (state) => state,
+    $$init: (state) => state,
+    $$reset: (state) => state,
     reducer: (state): State => ({ ...state }),
   });
   const dispatchAction = useDispatcher(store.reducer);
@@ -136,8 +136,8 @@ import { createStoreRegistry } from '../../src';
   type State = { propA: string, propB: number };
   const initialState: State = { propA: ``, propB: 0 };
   const store = createStore(``, initialState, {
-    [`$$init`]: (state) => state,
-    [`$$reset`]: (state) => state,
+    $$init: (state) => state,
+    $$reset: (state) => state,
     reducer: (state): State => ({ ...state }),
   });
   const dispatchAction = useDispatcher(store.reducer);
@@ -149,8 +149,8 @@ import { createStoreRegistry } from '../../src';
   type State = { propA: string, propB: number };
   const initialState: State = { propA: ``, propB: 0 };
   const store = createStore(``, initialState, {
-    [`$$init`]: (state) => state,
-    [`$$reset`]: (state) => state,
+    $$init: (state) => state,
+    $$reset: (state) => state,
     reducer: (state): State => ({ ...state }),
   });
   const dispatchAction = useDispatcher(store.reducer);
@@ -162,8 +162,8 @@ import { createStoreRegistry } from '../../src';
   type State = { propA: string, propB: number };
   const initialState: State = { propA: ``, propB: 0 };
   const store = createStore(``, initialState, {
-    [`$$init`]: (state) => state,
-    [`$$reset`]: (state) => state,
+    $$init: (state) => state,
+    $$reset: (state) => state,
     reducer: (state, payload: { prop: string }): State => ({ ...state, propA: payload.prop }),
   });
   const dispatchAction = useDispatcher(store.reducer);
@@ -175,8 +175,8 @@ import { createStoreRegistry } from '../../src';
   type State = { propA: string, propB: number };
   const initialState: State = { propA: ``, propB: 0 };
   const store = createStore(``, initialState, {
-    [`$$init`]: (state) => state,
-    [`$$reset`]: (state) => state,
+    $$init: (state) => state,
+    $$reset: (state) => state,
     reducer: (state, payload: { prop: string }): State => ({ ...state, propA: payload.prop }),
   });
   const dispatchAction = useDispatcher(store.reducer);
@@ -188,8 +188,8 @@ import { createStoreRegistry } from '../../src';
   type State = { propA: string, propB: number };
   const initialState: State = { propA: ``, propB: 0 };
   const store = createStore(``, initialState, {
-    [`$$init`]: (state) => state,
-    [`$$reset`]: (state) => state,
+    $$init: (state) => state,
+    $$reset: (state) => state,
     reducer: (state, payload: { prop: string }): State => ({ ...state, propA: payload.prop }),
   });
   const dispatchAction = useDispatcher(store.reducer);
