@@ -43,24 +43,22 @@ import { createStoreRegistry } from '../../src';
   type State = { propA: string, propB: number };
   const initialState: State = { propA: ``, propB: 0 };
   const store = createStore(``, initialState, {
-    $$init: (state, payload: { prop: string }) => ({ ...state, propA: payload.prop }),
+    $$init: (state, payload: Partial<State>) => ({ ...state, ...payload }),
     $$reset: (state) => state,
   });
   useStore(store, (init) => {
-    // @ts-expect-error
     return init();
   });
   useStore(store, (init) => {
+    return init({ propA: `` });
+  });
+  useStore(store, (init) => {
+    const reset = init({ propA: ``, propB: 1 });
+    return () => reset();
+  });
+  useStore(store, (init) => {
     // @ts-expect-error
-    const reset = init();
-    return () => reset();
-  });
-  useStore(store, (init) => {
-    return init({ prop: `` });
-  });
-  useStore(store, (init) => {
-    const reset = init({ prop: `` });
-    return () => reset();
+    return init({ propC: `` });
   });
 }
 
@@ -70,20 +68,16 @@ import { createStoreRegistry } from '../../src';
   const initialState: State = { propA: ``, propB: 0 };
   const store = createStore(``, initialState, {
     $$init: (state) => state,
-    $$reset: (state, payload: { prop: string }) => ({ ...state, propA: payload.prop }),
-  });
-  // @ts-expect-error
-  useStore(store, (init) => {
-    return init();
+    $$reset: (state) => state,
   });
   useStore(store, (init) => {
     const reset = init();
-    // @ts-expect-error
     return () => reset();
   });
   useStore(store, (init) => {
     const reset = init();
-    return () => reset({ prop: `` });
+    // @ts-expect-error
+    return () => reset({ propA: `` });
   });
 }
 

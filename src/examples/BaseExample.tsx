@@ -45,10 +45,7 @@ const formStore = createStore(`form`, initialFormState, {
     };
   },
   $$reset: (state): FormState => {
-    return {
-      ...state,
-      productName: `xxx`,
-    }
+    return state;
   },
   productNameChange: (state, payload: ProductNameChangePayload): FormState => {
     return {

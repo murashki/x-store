@@ -1,20 +1,17 @@
 import type { Dispatch } from './types/InternalStore/Dispatch.tsx';
+import type { GetIsInitialized } from './types/InternalStore/GetIsInitialized.tsx';
 import type { GetState } from './types/InternalStore/GetState.tsx';
 import type { GetStateAll } from './types/InternalStore/GetStateAll.tsx';
 import type { InitInstance } from './types/InternalStore/InitInstance.tsx';
-import type { InitPayload } from './types/InitPayload.tsx';
 import type { InstanceKey } from './types/InstanceKey.tsx';
 import type { Listener } from './types/InternalStore/Listener.tsx';
 import type { ListenerAll } from './types/InternalStore/ListenerAll.tsx';
-import type { ReducerMap } from './types/ReducerMap.tsx';
-import type { ResetPayload } from './types/ResetPayload.tsx';
 import type { StoreState } from './types/StoreState.tsx';
 import type { Subscribe } from './types/InternalStore/Subscribe.tsx';
 import type { SubscribeAll } from './types/InternalStore/SubscribeAll.tsx';
 
 export class InternalStore<
   TStoreState extends StoreState = StoreState,
-  TReducerMap extends ReducerMap<TStoreState> = ReducerMap<TStoreState>,
 > {
   private readonly listeners: Record<InstanceKey, Set<Listener<TStoreState>>>;
 
@@ -31,6 +28,10 @@ export class InternalStore<
     this.state = {};
   }
 
+  public getIsInitialized: GetIsInitialized = (instanceKey) => {
+    return this.getState(instanceKey)?.$$initialized ?? false;
+  };
+
   public getState: GetState<TStoreState> = (instanceKey) => {
     return this.state[instanceKey];
   };
@@ -39,20 +40,22 @@ export class InternalStore<
     return this.state;
   };
 
-  public initInstance: InitInstance<TStoreState, InitPayload<TReducerMap>, ResetPayload<TReducerMap>> = (instanceKey, initialState, initPayload, initReducer) => {
+  public initInstance: InitInstance<TStoreState> = (instanceKey, initialState, prefill, initReducer) => {
     // TODO От множественной инициализации было решено отказаться. Надо кинуть предупреждение.
-    this.state = { ...this.state, [instanceKey]: this.state[instanceKey] ?? initialState };
+    this.state = { ...this.state, [instanceKey]: { ...(this.state[instanceKey] ?? initialState), ...prefill, $$initialized: false, $$instanceKey: instanceKey } };
 
     const $$init: typeof initReducer = (state, payload) => {
       return { ...initReducer(state, payload), $$initialized: true };
     };
-    this.dispatch(instanceKey, initPayload, $$init);
+    this.dispatch(instanceKey, prefill ?? {}, $$init);
 
-    return (resetPayload, resetReducer) => {
+    return (resetReducer) => {
+      // TODO Сомнение: что должно нести прощальное состояние сброса и какой быть роли $$reset.
+      //   Пейлоад у сброса убран, есть идеи на этот счёт, но они ещё не оформились.
       const $$reset: typeof resetReducer = (state, payload) => {
         return { ...resetReducer(state, payload), $$initialized: false };
       };
-      this.dispatch(instanceKey, resetPayload, $$reset);
+      this.dispatch(instanceKey, undefined, $$reset);
       delete this.state[instanceKey];
     };
   };
@@ -77,8 +80,8 @@ export class InternalStore<
 
   public dispatch: Dispatch<TStoreState> = (instanceKey, payload, reducer) => {
     const instanceState = this.state[instanceKey];
-    const reducerNextState = reducer(instanceState as TStoreState & { $$initialized: boolean }, payload);
-    const instanceNextState = { ...reducerNextState, $$initialized: reducerNextState.$$initialized ?? instanceState?.$$initialized ?? false };
+    const reducerNextState = reducer(instanceState as TStoreState & { $$initialized: boolean, $$instanceKey: InstanceKey }, payload);
+    const instanceNextState = { ...reducerNextState, $$initialized: reducerNextState.$$initialized ?? instanceState?.$$initialized ?? false, $$instanceKey: instanceKey };
 
     this.state = { ...this.state, [instanceKey]: instanceNextState };
 

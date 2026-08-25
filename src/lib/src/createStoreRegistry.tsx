@@ -1,4 +1,5 @@
 import type { StoreRegistry } from './types/StoreRegistry.tsx';
+import { createStoreProvider } from './StoreProvider.tsx';
 import { createUseDispatcher } from './createUseDispatcher.tsx';
 import { createUseLatest } from './createUseLatest.tsx';
 import { createUseProp } from './createUseProp.tsx';
@@ -13,9 +14,11 @@ export function createStoreRegistry() {
   const usePropAll = createUsePropAll(storeRegistry);
   const useDispatcher = createUseDispatcher(storeRegistry);
   const useLatest = createUseLatest(storeRegistry);
+  const StoreProvider = createStoreProvider(useStore);
 
   return {
     storeRegistry,
+    StoreProvider,
     useStore,
     useProp,
     usePropAll,

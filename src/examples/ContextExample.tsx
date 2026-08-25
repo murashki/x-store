@@ -40,16 +40,10 @@ const initialFormState: FormState = {
 
 const formStore = createStore(`form`, initialFormState, {
   $$init: (state): FormState => {
-    return {
-      ...state,
-      productName: `Новый продукт`,
-    };
+    return state;
   },
   $$reset: (state): FormState => {
-    return {
-      ...state,
-      productName: `xxx`,
-    }
+    return state;
   },
   productNameChange: (state, payload: ProductNameChangePayload): FormState => {
     return {
@@ -100,6 +94,7 @@ export const App = React.memo(function App() {
         ? (
           <StoreProvider
             instanceKey={`1`}
+            prefill={{ productName: `Новый продукт` }}
             store={formStore}
           >
             <Form />
@@ -119,10 +114,6 @@ const Form = React.memo(function Form() {
 
   useEffect(() => {
     console.log(`Form effect`);
-  });
-
-  useStore(formStore, (init) => {
-    return init();
   });
 
   return (

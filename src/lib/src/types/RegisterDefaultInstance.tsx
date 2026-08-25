@@ -1,13 +1,12 @@
 import { STORE_INSTANCE_UNREGISTERED } from '../constants.tsx';
 import type { InitInstance } from './InitInstance.tsx';
-import type { Payload } from './Payload.tsx';
+import type { StoreState } from './StoreState.tsx';
 
 export type RegisterDefaultInstance<
-  TInitPayload extends void | Payload = void | Payload,
-  TResetPayload extends void | Payload = void | Payload,
+  TStoreState extends StoreState = StoreState,
 > = {
   (
-    initInstance: InitInstance<TInitPayload, TResetPayload>,
+    initInstance: InitInstance<TStoreState>,
     instanceKey: void,
   ): () => typeof STORE_INSTANCE_UNREGISTERED;
 };

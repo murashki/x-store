@@ -61,7 +61,7 @@ export function createUseDispatcher(storeRegistry: StoreRegistry) {
           throw new Error(`Store "${internalStoreProps.name}" is not initialized for instance "${String(actualInstanceKey)}".`);
         }
 
-        const internalStore = storeRegistry[internalStoreProps.uniqKey].internalStore as InternalStore<TStoreState, TReducerMap>;
+        const internalStore = storeRegistry[internalStoreProps.uniqKey].internalStore as InternalStore<TStoreState>;
 
         internalStore.dispatch(actualInstanceKey, payload, reducerLink.reducer);
       }

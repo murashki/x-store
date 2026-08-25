@@ -1,11 +1,10 @@
-import type { Payload } from './Payload.tsx';
 import type { ResetInstance } from './ResetInstance.tsx';
+import type { StoreState } from './StoreState.tsx';
 
 export type InitInstance<
-  TInitPayload extends void | Payload = void | Payload,
-  TResetPayload extends void | Payload = void | Payload,
+  TStoreState extends StoreState = StoreState,
 > = {
   (
-    payload: TInitPayload,
-  ): ResetInstance<TResetPayload>;
+    prefill?: Partial<TStoreState>,
+  ): ResetInstance;
 };

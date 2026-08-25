@@ -1,3 +1,4 @@
+import type { InstanceKey } from '../../src';
 import { createStore } from '../../src';
 import { createStoreRegistry } from '../../src';
 
@@ -78,4 +79,24 @@ import { createStoreRegistry } from '../../src';
   ((_initialized: boolean) => null)(initialized);
   // @ts-expect-error
   ((_initialized: string) => null)(initialized);
+}
+
+{
+  const { useProp } = createStoreRegistry();
+  type State = { prop: string };
+  const initialState: State = { prop: `` };
+  const store = createStore(``, initialState, {
+    $$init: (state) => state,
+    $$reset: (state) => state,
+    reducer: (state): State => ({ ...state }),
+  });
+  useProp(store.$$instanceKey);
+  useProp(store.$$instanceKey, `0`);
+  useProp(store.$$instanceKey, Symbol());
+  // @ts-expect-error
+  useProp(store.$$instanceKey, null);
+  const storeInstanceKey = useProp(store.$$instanceKey);
+  ((_instanceKey: InstanceKey) => null)(storeInstanceKey);
+  // @ts-expect-error
+  ((_instanceKey: number) => null)(storeInstanceKey);
 }

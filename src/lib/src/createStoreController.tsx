@@ -11,10 +11,10 @@ export function createStoreController<
 >(
   storeRegistry: StoreRegistry,
   internalStoreProps: InternalStoreProps<string, TStoreState, TReducerMap>,
-): StoreController<TStoreState, TReducerMap> {
-  let storeController = storeRegistry[internalStoreProps.uniqKey] as StoreController<TStoreState, TReducerMap>;
+): StoreController<TStoreState> {
+  let storeController = storeRegistry[internalStoreProps.uniqKey] as StoreController<TStoreState>;
   if ( ! storeController) {
-    const internalStore = new InternalStore<TStoreState, TReducerMap>(internalStoreProps.name);
+    const internalStore = new InternalStore<TStoreState>(internalStoreProps.name);
     storeController = { earlySubscribers: {}, instances: {}, internalStore };
     storeRegistry[internalStoreProps.uniqKey] = storeController as StoreController;
   }

@@ -18,15 +18,14 @@ import { createStoreController } from './createStoreController.tsx';
 export function createUseProp(storeRegistry: StoreRegistry): UseProp {
   function subscribeEarly<
     TStoreState extends StoreState,
-    TReducerMap extends ReducerMap<TStoreState>,
-  >(storeController: StoreController<TStoreState, TReducerMap>, instanceKey: InstanceKey, scheduleWake: () => void): () => void {
+  >(storeController: StoreController<TStoreState>, instanceKey: InstanceKey, scheduleWake: () => void): () => void {
     const earlySubscribers = storeController.earlySubscribers[instanceKey] = storeController.earlySubscribers[instanceKey] ?? [];
     earlySubscribers.push(scheduleWake);
 
     // Есть такой вариант, когда экземпляр хранилища может инициализироваться между рендером и
     // подпиской и тогда цикл пробуждения ранних слушателей запускающийся в момент инициализации
     // экземпляра хранилища проходит без нас. В этом случае запланируем пробуждение сами.
-    if (instanceKey in storeController.instances) {
+    if (storeController.internalStore.getIsInitialized(instanceKey)) {
       scheduleWake();
     }
 
@@ -52,13 +51,25 @@ export function createUseProp(storeRegistry: StoreRegistry): UseProp {
     TStateName extends keyof TStoreState = keyof TStoreState,
   >(stateLink: StateLink<string, TStoreState, TReducerMap, TStateName>, instanceKey?: InstanceKey): TStoreState[TStateName] {
     const internalStoreProps = stateLink[INTERNAL_STORE_PROPS_ACCESSOR];
-    const contextInstanceKey = useContext(internalStoreProps.context)?.instanceKey;
-    const actualInstanceKey = instanceKey ?? contextInstanceKey ?? DEFAULT_INSTANCE_KEY;
+    const storeContextValue = useContext(internalStoreProps.context);
+    const actualInstanceKey = instanceKey ?? storeContextValue?.instanceKey ?? DEFAULT_INSTANCE_KEY;
     const [, setWakeState] = useState(0);
 
     const storeController = createStoreController(storeRegistry, internalStoreProps);
 
-    const initialized = actualInstanceKey in storeController.instances;
+    const initialized = storeController.internalStore.getIsInitialized(actualInstanceKey);
+
+    // TODO Сомнение: склейка prefill с initialState происходит в каждом useProp под провайдером,
+    //   хотя StoreProvider мог бы склеить один раз и класть в контекст уже готовое состояние.
+    //   Заодно в хук протекло знание про $$initialized. Как надо на самом деле, ещё не решено.
+    const uninitializedState = useMemo<TStoreState>(() => {
+      if (instanceKey == null && storeContextValue?.prefill != null) {
+        return { ...internalStoreProps.initialState, ...storeContextValue.prefill, $$initialized: false, $$instanceKey: actualInstanceKey };
+      }
+      else {
+        return { ...internalStoreProps.initialState, $$instanceKey: actualInstanceKey };
+      }
+    }, [actualInstanceKey, instanceKey, internalStoreProps, storeContextValue]);
 
     const { getSnapshot, subscribe } = useMemo(() => {
       let subscribe: (listener: () => void) => () => void;
@@ -70,8 +81,7 @@ export function createUseProp(storeRegistry: StoreRegistry): UseProp {
         };
 
         getSnapshot = () => {
-          // Экземпляр могли сбросить между рендером и этим чтением; до ререндера показываем начальное состояние.
-          return storeController.internalStore.getState(actualInstanceKey) ?? internalStoreProps.initialState;
+          return storeController.internalStore.getState(actualInstanceKey) ?? uninitializedState;
         };
       }
       else {
@@ -80,12 +90,12 @@ export function createUseProp(storeRegistry: StoreRegistry): UseProp {
         };
 
         getSnapshot = () => {
-          return internalStoreProps.initialState;
+          return uninitializedState;
         };
       }
 
       return { getSnapshot, subscribe };
-    }, [actualInstanceKey, initialized, internalStoreProps, storeController]);
+    }, [actualInstanceKey, initialized, storeController, uninitializedState]);
 
     const selector = useCallback((state: TStoreState) => {
       return state[stateLink.stateName];

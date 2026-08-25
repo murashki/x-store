@@ -3,13 +3,11 @@ import { useEffect } from 'react';
 import { useMemo } from 'react';
 import { useRef } from 'react';
 
-import type { InitPayload } from './types/InitPayload.tsx';
 import type { InstanceKey } from './types/InstanceKey.tsx';
 import type { InternalStoreProps } from './types/InternalStoreProps.tsx';
 import type { ReducerMap } from './types/ReducerMap.tsx';
 import type { RegisterDefaultInstance } from './types/RegisterDefaultInstance.tsx';
 import type { RegisterInstance } from './types/RegisterInstance.tsx';
-import type { ResetPayload } from './types/ResetPayload.tsx';
 import type { Store } from './types/Store.tsx';
 import type { StoreRegistry } from './types/StoreRegistry.tsx';
 import type { StoreState } from './types/StoreState.tsx';
@@ -22,32 +20,26 @@ export function createUseStore(storeRegistry: StoreRegistry) {
   function useStore<
     TStoreState extends StoreState = StoreState,
     TReducerMap extends ReducerMap<TStoreState> = ReducerMap<TStoreState>,
-    TInitPayload extends InitPayload<TReducerMap> = InitPayload<TReducerMap>,
-    TResetPayload extends ResetPayload<TReducerMap> = ResetPayload<TReducerMap>,
   >(
     store: Store<string, TStoreState, TReducerMap>,
-    registerInstance: RegisterDefaultInstance<TInitPayload, TResetPayload>,
+    registerInstance: RegisterDefaultInstance<TStoreState>,
   ): void;
 
   function useStore<
     TStoreState extends StoreState = StoreState,
     TReducerMap extends ReducerMap<TStoreState> = ReducerMap<TStoreState>,
-    TInitPayload extends InitPayload<TReducerMap> = InitPayload<TReducerMap>,
-    TResetPayload extends ResetPayload<TReducerMap> = ResetPayload<TReducerMap>,
   >(
     store: Store<string, TStoreState, TReducerMap>,
     instanceKeys: InstanceKey[],
-    registerInstance: RegisterInstance<TInitPayload, TResetPayload>,
+    registerInstance: RegisterInstance<TStoreState>,
   ): void;
 
   function useStore<
     TStoreState extends StoreState = StoreState,
     TReducerMap extends ReducerMap<TStoreState> = ReducerMap<TStoreState>,
-    TInitPayload extends InitPayload<TReducerMap> = InitPayload<TReducerMap>,
-    TResetPayload extends ResetPayload<TReducerMap> = ResetPayload<TReducerMap>,
   >(
     store: Store<string, TStoreState, TReducerMap>,
-    ...args: (InstanceKey[] | RegisterInstance<TInitPayload, TResetPayload> | RegisterDefaultInstance<TInitPayload, TResetPayload>)[]
+    ...args: (InstanceKey[] | RegisterInstance<TStoreState> | RegisterDefaultInstance<TStoreState>)[]
   ): void {
     type InitInstance = {
       resetInstance: () => typeof STORE_INSTANCE_UNREGISTERED;
@@ -62,25 +54,25 @@ export function createUseStore(storeRegistry: StoreRegistry) {
     }
 
     let instanceKeys: InstanceKey[];
-    let registerInstance: RegisterInstance<TInitPayload, TResetPayload> | RegisterDefaultInstance<TInitPayload, TResetPayload>;
+    let registerInstance: RegisterInstance<TStoreState> | RegisterDefaultInstance<TStoreState>;
 
     const internalStoreProps = storeRef.current.store[INTERNAL_STORE_PROPS_ACCESSOR] as InternalStoreProps<string, TStoreState, TReducerMap>;
     const contextInstanceKey = useContext(internalStoreProps.context)?.instanceKey;
 
     if (typeof args[0] === `function`) {
       instanceKeys = [contextInstanceKey ?? DEFAULT_INSTANCE_KEY] as InstanceKey[];
-      registerInstance = args[0] as RegisterDefaultInstance<TInitPayload, TResetPayload>;
+      registerInstance = args[0] as RegisterDefaultInstance<TStoreState>;
     }
     else {
       instanceKeys = args[0] as InstanceKey[];
-      registerInstance = args[1] as RegisterInstance<TInitPayload, TResetPayload>;
+      registerInstance = args[1] as RegisterInstance<TStoreState>;
     }
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
     const actualInstanceKeys = useMemo(() => instanceKeys, instanceKeys);
     const ownerKeyRef = useRef<{ ownerKey: symbol }>({ ownerKey: Symbol(`ownerKey`) });
     const initInstancesRef = useRef<{ initInstances: Record<InstanceKey, InitInstance> }>({ initInstances: {} });
-    const registerInstanceRef = useRef<{ registerInstance: RegisterInstance<TInitPayload, TResetPayload> | RegisterDefaultInstance<TInitPayload, TResetPayload> }>({ registerInstance });
+    const registerInstanceRef = useRef<{ registerInstance: RegisterInstance<TStoreState> | RegisterDefaultInstance<TStoreState> }>({ registerInstance });
     registerInstanceRef.current.registerInstance = registerInstance;
 
     useEffect(() => {
@@ -91,7 +83,7 @@ export function createUseStore(storeRegistry: StoreRegistry) {
       for (const instanceKey of actualInstanceKeys) {
         // TODO А что по поводу альтернативного сценария?
         if ( ! initInstances[instanceKey]) {
-          const initInstance = (initPayload: TInitPayload) => {
+          const initInstance = (prefill?: Partial<TStoreState>) => {
             const storeController = createStoreController(storeRegistry, internalStoreProps);
 
             if (storeController.instances[instanceKey]) {
@@ -108,7 +100,7 @@ export function createUseStore(storeRegistry: StoreRegistry) {
               // TODO Убрать в логгер
               console.log({ storeRegistry });
 
-              const resetState = storeController.internalStore.initInstance(instanceKey, internalStoreProps.initialState, initPayload, internalStoreProps.$$init);
+              const resetState = storeController.internalStore.initInstance(instanceKey, internalStoreProps.initialState, prefill, internalStoreProps.$$init);
               storeController.instances[instanceKey] = { owners: [], resetState };
               if (storeController.earlySubscribers[instanceKey]) {
                 for (const subscriber of [...storeController.earlySubscribers[instanceKey]]) {
@@ -118,7 +110,7 @@ export function createUseStore(storeRegistry: StoreRegistry) {
             }
             storeController.instances[instanceKey].owners.push(ownerKey);
 
-            return (resetPayload: TResetPayload): typeof STORE_INSTANCE_UNREGISTERED => {
+            return (): typeof STORE_INSTANCE_UNREGISTERED => {
               storeController.instances[instanceKey].owners.splice(storeController.instances[instanceKey].owners.indexOf(ownerKey), 1);
 
               if (storeController.instances[instanceKey].owners.length === 0) {
@@ -128,7 +120,7 @@ export function createUseStore(storeRegistry: StoreRegistry) {
                 console.log({ storeRegistry });
 
                 // TODO Надо ли оповещать слушателей если один экземпляр хранилища удалился
-                storeController.instances[instanceKey].resetState(resetPayload, internalStoreProps.$$reset);
+                storeController.instances[instanceKey].resetState(internalStoreProps.$$reset);
                 delete storeController.instances[instanceKey];
               }
 
@@ -140,8 +132,8 @@ export function createUseStore(storeRegistry: StoreRegistry) {
 
           initInstances[instanceKey] = {
             resetInstance: instanceKey === DEFAULT_INSTANCE_KEY
-              ? (registerInstance as RegisterDefaultInstance<TInitPayload, TResetPayload>)(initInstance)
-              : (registerInstance as RegisterInstance<TInitPayload, TResetPayload>)(initInstance, instanceKey),
+              ? (registerInstance as RegisterDefaultInstance<TStoreState>)(initInstance)
+              : (registerInstance as RegisterInstance<TStoreState>)(initInstance, instanceKey),
           };
         }
       }

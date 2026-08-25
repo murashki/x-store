@@ -1,43 +1,38 @@
-import React from 'react';
 import { useMemo } from 'react';
+import { useRef } from 'react';
 
-import type { InstanceKey } from './types/InstanceKey.tsx';
+import type { createUseStore } from './createUseStore.tsx';
 import type { ReducerMap } from './types/ReducerMap.tsx';
-import type { Store } from './types/Store.tsx';
 import type { StoreContextValue } from './types/StoreContextValue.tsx';
+import type { StoreProviderProps } from './types/StoreProviderProps.tsx';
 import type { StoreState } from './types/StoreState.tsx';
 import { DEFAULT_INSTANCE_KEY } from './constants.tsx';
 import { INTERNAL_STORE_PROPS_ACCESSOR } from './constants.tsx';
 
-export type StoreProviderProps<
-  TStoreName extends string = string,
-  TStoreState extends StoreState = StoreState,
-  TReducerMap extends ReducerMap<TStoreState> = ReducerMap<TStoreState>,
-> = React.PropsWithChildren<{
-  // initialState: Partial<TStoreState>;
-  instanceKey?: InstanceKey;
-  store: Store<TStoreName, TStoreState, TReducerMap>;
-}>;
+export function createStoreProvider(useStore: ReturnType<typeof createUseStore>) {
+  return function StoreProvider<
+    TStoreName extends string = string,
+    TStoreState extends StoreState = StoreState,
+    TReducerMap extends ReducerMap<TStoreState> = ReducerMap<TStoreState>,
+  >(props: StoreProviderProps<TStoreName, TStoreState, TReducerMap>) {
+    const Context = props.store[INTERNAL_STORE_PROPS_ACCESSOR].context;
+    const actualInstanceKey = props.instanceKey ?? DEFAULT_INSTANCE_KEY;
+    const prefillRef = useRef<{ prefill: undefined | Partial<TStoreState> }>({ prefill: props.prefill });
 
-export function StoreProvider<
-  TStoreName extends string = string,
-  TStoreState extends StoreState = StoreState,
-  TReducerMap extends ReducerMap<TStoreState> = ReducerMap<TStoreState>,
->({
-  children,
-  // initialState,
-  instanceKey,
-  store,
-}: StoreProviderProps<TStoreName, TStoreState, TReducerMap>) {
-  const Context = store[INTERNAL_STORE_PROPS_ACCESSOR].context;
+    useStore(props.store, [actualInstanceKey], (initInstance) => {
+      return initInstance(prefillRef.current.prefill);
+    });
 
-  const contextValue = useMemo<StoreContextValue>(() => {
-    return { instanceKey: instanceKey ?? DEFAULT_INSTANCE_KEY };
-  }, [instanceKey]);
+    const contextValue = useMemo<StoreContextValue<TStoreState>>(() => {
+      return { instanceKey: actualInstanceKey, prefill: prefillRef.current.prefill };
+    }, [actualInstanceKey]);
 
-  return (
-    <Context.Provider value={contextValue}>
-      {children}
-    </Context.Provider>
-  );
+    return (
+      <Context.Provider
+        value={contextValue}
+      >
+        {props.children}
+      </Context.Provider>
+    );
+  };
 }

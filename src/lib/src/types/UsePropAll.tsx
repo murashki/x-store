@@ -3,6 +3,9 @@ import type { ReducerMap } from './ReducerMap.tsx';
 import type { StateLink } from './StateLink.tsx';
 import type { StoreState } from './StoreState.tsx';
 
+// TODO Сомнение: usePropAll на уровне типов не принимает служебные ссылки $$initialized и
+//   $$instanceKey, хотя в рантайме эти ключи в состояниях экземпляров есть. Нужна ли перегрузка
+//   по образцу UseProp, не решено.
 export type UsePropAll = {
   <
     TStoreState extends StoreState = StoreState,

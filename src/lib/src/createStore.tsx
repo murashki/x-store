@@ -6,6 +6,7 @@ import type { ReducerMap } from './types/ReducerMap.tsx';
 import type { Store } from './types/Store.tsx';
 import type { StoreContextValue } from './types/StoreContextValue.tsx';
 import type { StoreState } from './types/StoreState.tsx';
+import { DEFAULT_INSTANCE_KEY } from './constants.tsx';
 import { INTERNAL_STORE_PROPS_ACCESSOR } from './constants.tsx';
 import { REDUCER_LINK } from './constants.tsx';
 import { STATE_LINK } from './constants.tsx';
@@ -13,7 +14,7 @@ import { STATE_LINK } from './constants.tsx';
 type CheckInitialState<
   TStoreState extends StoreState = StoreState,
 > = {
-  [TKey in keyof TStoreState]: TKey extends `$$initialized`
+  [TKey in keyof TStoreState]: TKey extends `$$initialized` | `$$instanceKey`
     ? void
     : TStoreState[TKey];
 };
@@ -22,7 +23,7 @@ type CheckReducerMap<
   TStoreState extends StoreState = StoreState,
   TReducerMap extends ReducerMap<TStoreState> = ReducerMap<TStoreState>,
 > = {
-  [TKey in keyof TReducerMap]: TKey extends `$$initialized`
+  [TKey in keyof TReducerMap]: TKey extends `$$initialized` | `$$instanceKey`
     ? void
     : TKey extends keyof TStoreState
       ? void
@@ -44,13 +45,13 @@ export function createStore<
   initialState: TStoreState & CheckInitialState<TStoreState>,
   reducerMap: TReducerMap & CheckReducerMap<TStoreState, TReducerMap>,
 ): Store<TStoreName, TStoreState, TReducerMap> {
-  const context = React.createContext<null | StoreContextValue>(null);
+  const context = React.createContext<null | StoreContextValue<TStoreState>>(null);
 
   const internalStoreProps: InternalStoreProps<TStoreName, TStoreState, TReducerMap> = {
     $$init: reducerMap.$$init,
     $$reset: reducerMap.$$reset,
     context,
-    initialState: { ...initialState, $$initialized: false },
+    initialState: { ...initialState, $$initialized: false, $$instanceKey: DEFAULT_INSTANCE_KEY },
     name,
     uniqKey: Symbol(`Store: ` + name),
   };
@@ -70,6 +71,12 @@ export function createStore<
   store.$$initialized = {
     [INTERNAL_STORE_PROPS_ACCESSOR]: internalStoreProps,
     stateName: `$$initialized`,
+    type: STATE_LINK,
+  };
+
+  store.$$instanceKey = {
+    [INTERNAL_STORE_PROPS_ACCESSOR]: internalStoreProps,
+    stateName: `$$instanceKey`,
     type: STATE_LINK,
   };
 

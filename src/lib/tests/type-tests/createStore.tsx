@@ -1,3 +1,4 @@
+import type { InstanceKey } from '../../src';
 import { createStore } from '../../src';
 
 {
@@ -73,7 +74,17 @@ import { createStore } from '../../src';
   type State = { prop: string };
   const initialState: State = { prop: `` };
   createStore(``, initialState, {
-    $$init: (state, payload: { prop: string }) => ({ ...state, prop: payload.prop }),
+    // @ts-expect-error
+    $$init: (state, payload: State) => ({ ...state, ...payload }),
+    $$reset: (state) => state,
+  });
+}
+
+{
+  type State = { prop: string };
+  const initialState: State = { prop: `` };
+  createStore(``, initialState, {
+    $$init: (state, payload: Partial<State>) => ({ ...state, ...payload }),
     $$reset: (state) => state,
   });
 }
@@ -103,7 +114,8 @@ import { createStore } from '../../src';
   const initialState: State = { prop: `` };
   createStore(``, initialState, {
     $$init: (state) => state,
-    $$reset: (state, payload: { prop: string }) => ({ ...state, prop: payload.prop }),
+    // @ts-expect-error
+    $$reset: (state, payload: Partial<State>) => ({ ...state, ...payload }),
   });
 }
 
@@ -237,6 +249,52 @@ import { createStore } from '../../src';
       ((_initialized: boolean) => null)(state.$$initialized);
       // @ts-expect-error
       ((_initialized: string) => null)(state.$$initialized);
+      return state;
+    },
+  });
+}
+
+{
+  type State = { $$instanceKey: string, prop: string };
+  const initialState: State = { $$instanceKey: ``, prop: `` };
+  createStore(
+    ``,
+    // @ts-expect-error
+    initialState,
+    {
+      $$init: (state) => state,
+      $$reset: (state) => state,
+    },
+  );
+}
+
+{
+  type State = { prop: string };
+  const initialState: State = { prop: `` };
+  createStore(``, initialState, {
+    $$init: (state) => state,
+    // @ts-expect-error
+    $$instanceKey: (state) => state,
+    $$reset: (state) => state,
+  });
+}
+
+{
+  type State = { prop: string };
+  const initialState: State = { prop: `` };
+  createStore(``, initialState, {
+    $$init: (state) => {
+      ((_instanceKey: InstanceKey) => null)(state.$$instanceKey);
+      return state;
+    },
+    $$reset: (state) => {
+      ((_instanceKey: InstanceKey) => null)(state.$$instanceKey);
+      return state;
+    },
+    reducer: (state) => {
+      ((_instanceKey: InstanceKey) => null)(state.$$instanceKey);
+      // @ts-expect-error
+      ((_instanceKey: number) => null)(state.$$instanceKey);
       return state;
     },
   });

@@ -11,7 +11,7 @@ export type InternalStoreProps<
 > = {
   $$init: TReducerMap[`$$init`];
   $$reset: TReducerMap[`$$reset`];
-  context: React.Context<null | StoreContextValue>;
+  context: React.Context<null | StoreContextValue<TStoreState>>;
   initialState: TStoreState;
   name: TStoreName;
   uniqKey: symbol;
