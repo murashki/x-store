@@ -1,6 +1,5 @@
 import type { InstanceKey } from '../InstanceKey.tsx';
 import type { Reducer } from '../Reducer.tsx';
-import type { ResetInstance } from './ResetInstance.tsx';
 import type { StoreState } from '../StoreState.tsx';
 
 export type InitInstance<
@@ -11,5 +10,5 @@ export type InitInstance<
     initialState: TStoreState,
     prefill: undefined | Partial<TStoreState>,
     initReducer: Reducer<TStoreState, Partial<TStoreState>>,
-  ): ResetInstance<TStoreState>;
+  ): void;
 };

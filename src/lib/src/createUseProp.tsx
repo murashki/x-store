@@ -1,6 +1,7 @@
 import { useCallback } from 'react';
 import { useContext } from 'react';
 import { useMemo } from 'react';
+import { useRef } from 'react';
 import { useState } from 'react';
 import { useSyncExternalStoreWithSelector } from 'use-sync-external-store/with-selector';
 
@@ -12,35 +13,38 @@ import type { StoreRegistry } from './types/StoreRegistry.tsx';
 import type { StoreState } from './types/StoreState.tsx';
 import type { UseProp } from './types/UseProp.tsx';
 import { DEFAULT_INSTANCE_KEY } from './constants.tsx';
+import { INITIALIZED_STATE_NAME } from './constants.tsx';
+import { INSTANCE_KEY_STATE_NAME } from './constants.tsx';
 import { INTERNAL_STORE_PROPS_ACCESSOR } from './constants.tsx';
 import { createStoreController } from './createStoreController.tsx';
 
 export function createUseProp(storeRegistry: StoreRegistry): UseProp {
-  function subscribeEarly<
+  function subscribeWake<
     TStoreState extends StoreState,
-  >(storeController: StoreController<TStoreState>, instanceKey: InstanceKey, scheduleWake: () => void): () => void {
-    const earlySubscribers = storeController.earlySubscribers[instanceKey] = storeController.earlySubscribers[instanceKey] ?? [];
-    earlySubscribers.push(scheduleWake);
+  >(storeController: StoreController<TStoreState>, instanceKey: InstanceKey, initialized: boolean, scheduleWake: () => void): () => void {
+    const wakeCallbacks = storeController.wakeCallbacks[instanceKey] = storeController.wakeCallbacks[instanceKey] ?? [];
+    wakeCallbacks.push(scheduleWake);
 
-    // Есть такой вариант, когда экземпляр хранилища может инициализироваться между рендером и
-    // подпиской и тогда цикл пробуждения ранних слушателей запускающийся в момент инициализации
-    // экземпляра хранилища проходит без нас. В этом случае запланируем пробуждение сами.
-    if (storeController.internalStore.getIsInitialized(instanceKey)) {
+    // Есть такой вариант, когда экземпляр хранилища может инициализироваться или сброситься между
+    // рендером и подпиской и тогда цикл пробуждения подписчиков, запускающийся в момент
+    // инициализации или сброса экземпляра, проходит без нас. В этом случае запланируем
+    // пробуждение сами.
+    if ((instanceKey in storeController.instances) !== initialized) {
       scheduleWake();
     }
 
     return () => {
-      const scheduleWakeIndex = earlySubscribers.indexOf(scheduleWake);
+      const scheduleWakeIndex = wakeCallbacks.indexOf(scheduleWake);
       // Свою запись удаляем только мы и только один раз, поэтому она обязана быть на месте - иначе
       // сообщение в консоль, ибо мы что-то не учли.
       if (scheduleWakeIndex === -1) {
-        console.warn(`Early subscriber is missing on unsubscribe [store: ${storeController.internalStore.name}, instanceKey: ${String(instanceKey)}]. This must never happen and may mean a bug inside the library itself. Please report it to the library developers.`);
+        console.warn(`Wake callback is missing on unsubscribe [store: ${storeController.internalStore.name}, instanceKey: ${String(instanceKey)}]. This must never happen and may mean a bug inside the library itself. Please report it to the library developers.`);
       }
       else {
-        earlySubscribers.splice(scheduleWakeIndex, 1);
+        wakeCallbacks.splice(scheduleWakeIndex, 1);
       }
-      if (earlySubscribers.length === 0) {
-        delete storeController.earlySubscribers[instanceKey];
+      if (wakeCallbacks.length === 0) {
+        delete storeController.wakeCallbacks[instanceKey];
       }
     };
   }
@@ -50,34 +54,49 @@ export function createUseProp(storeRegistry: StoreRegistry): UseProp {
     TReducerMap extends ReducerMap<TStoreState> = ReducerMap<TStoreState>,
     TStateName extends keyof TStoreState = keyof TStoreState,
   >(stateLink: StateLink<string, TStoreState, TReducerMap, TStateName>, instanceKey?: InstanceKey): TStoreState[TStateName] {
-    const internalStoreProps = stateLink[INTERNAL_STORE_PROPS_ACCESSOR];
+    const stateLinkRef = useRef<{ stateLink: StateLink<string, TStoreState, TReducerMap, TStateName> }>({ stateLink });
+
+    if (stateLinkRef.current.stateLink !== stateLink) {
+      console.warn(`State link reference mismatch. You must pass the same state link on every render.`);
+    }
+
+    const actualStateLink = stateLinkRef.current.stateLink;
+    const serviceLink = actualStateLink.stateName === INITIALIZED_STATE_NAME || actualStateLink.stateName === INSTANCE_KEY_STATE_NAME;
+    const internalStoreProps = actualStateLink[INTERNAL_STORE_PROPS_ACCESSOR];
     const storeContextValue = useContext(internalStoreProps.context);
     const actualInstanceKey = instanceKey ?? storeContextValue?.instanceKey ?? DEFAULT_INSTANCE_KEY;
     const [, setWakeState] = useState(0);
 
     const storeController = createStoreController(storeRegistry, internalStoreProps);
 
-    const initialized = storeController.internalStore.getIsInitialized(actualInstanceKey);
+    const initialized = actualInstanceKey in storeController.instances;
 
     // TODO Сомнение: склейка prefill с initialState происходит в каждом useProp под провайдером,
     //   хотя StoreProvider мог бы склеить один раз и класть в контекст уже готовое состояние.
-    //   Заодно в хук протекло знание про $$initialized. Как надо на самом деле, ещё не решено.
+    //   Как надо на самом деле, ещё не решено.
     const uninitializedState = useMemo<TStoreState>(() => {
       if (instanceKey == null && storeContextValue?.prefill != null) {
-        return { ...internalStoreProps.initialState, ...storeContextValue.prefill, $$initialized: false, $$instanceKey: actualInstanceKey };
+        return { ...internalStoreProps.initialState, ...storeContextValue.prefill };
       }
       else {
-        return { ...internalStoreProps.initialState, $$instanceKey: actualInstanceKey };
+        return internalStoreProps.initialState;
       }
-    }, [actualInstanceKey, instanceKey, internalStoreProps, storeContextValue]);
+    }, [instanceKey, internalStoreProps, storeContextValue]);
 
     const { getSnapshot, subscribe } = useMemo(() => {
       let subscribe: (listener: () => void) => () => void;
       let getSnapshot: () => TStoreState;
 
-      if (initialized) {
+      const scheduleWake = () => setWakeState((state) => state + 1);
+
+      if (initialized && ! serviceLink) {
         subscribe = (listener: () => void) => {
-          return storeController.internalStore.subscribe(actualInstanceKey, listener);
+          const unsubscribeStore = storeController.internalStore.subscribe(actualInstanceKey, listener);
+          const unsubscribeWake = subscribeWake(storeController, actualInstanceKey, initialized, scheduleWake);
+          return () => {
+            unsubscribeStore();
+            unsubscribeWake();
+          };
         };
 
         getSnapshot = () => {
@@ -86,7 +105,7 @@ export function createUseProp(storeRegistry: StoreRegistry): UseProp {
       }
       else {
         subscribe = () => {
-          return subscribeEarly(storeController, actualInstanceKey, () => setWakeState(state => state + 1));
+          return subscribeWake(storeController, actualInstanceKey, initialized, scheduleWake);
         };
 
         getSnapshot = () => {
@@ -95,17 +114,27 @@ export function createUseProp(storeRegistry: StoreRegistry): UseProp {
       }
 
       return { getSnapshot, subscribe };
-    }, [actualInstanceKey, initialized, storeController, uninitializedState]);
+    }, [actualInstanceKey, initialized, serviceLink, storeController, uninitializedState]);
 
     const selector = useCallback((state: TStoreState) => {
-      return state[stateLink.stateName];
-    }, [stateLink]);
+      return state[actualStateLink.stateName];
+    }, [actualStateLink]);
 
-    return useSyncExternalStoreWithSelector(
+    const prop = useSyncExternalStoreWithSelector(
       subscribe,
       getSnapshot,
       null,
       selector,
     );
+
+    if (actualStateLink.stateName === INITIALIZED_STATE_NAME) {
+      return initialized as TStoreState[TStateName];
+    }
+    else if (actualStateLink.stateName === INSTANCE_KEY_STATE_NAME) {
+      return actualInstanceKey as TStoreState[TStateName];
+    }
+    else {
+      return prop;
+    }
   };
 }

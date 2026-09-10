@@ -2,6 +2,10 @@ export const DEFAULT_INSTANCE_KEY: unique symbol = Symbol(`DEFAULT_INSTANCE_KEY`
 
 export const DESTROY: unique symbol = Symbol(`DESTROY_INSTRUCTION`);
 
+export const INITIALIZED_STATE_NAME = `$$initialized` as const;
+
+export const INSTANCE_KEY_STATE_NAME = `$$instanceKey` as const;
+
 export const INTERNAL_STORE_PROPS_ACCESSOR: unique symbol = Symbol(`INTERNAL_STORE_PROPS`);
 
 export const REDUCER_LINK: unique symbol = Symbol(`REDUCER_LINK`);

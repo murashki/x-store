@@ -1,5 +1,6 @@
 import { useContext } from 'react';
 import { useMemo } from 'react';
+import { useRef } from 'react';
 import type { ReducerMap } from './types/ReducerMap.tsx';
 
 import type { Dispatcher } from './types/Dispatcher.tsx';
@@ -10,7 +11,7 @@ import type { StoreRegistry } from './types/StoreRegistry.tsx';
 import type { StoreState } from './types/StoreState.tsx';
 import { DEFAULT_INSTANCE_KEY } from './constants.tsx';
 import { INTERNAL_STORE_PROPS_ACCESSOR } from './constants.tsx';
-import { InternalStore } from './InternalStore.tsx';
+import { createStoreController } from './createStoreController.tsx';
 
 export function createUseDispatcher(storeRegistry: StoreRegistry) {
   return function useDispatcher<
@@ -21,10 +22,17 @@ export function createUseDispatcher(storeRegistry: StoreRegistry) {
   >(
     reducerLink: ReducerLink<string, TStoreState, TReducerMap, TReducerName>,
   ): Dispatcher<TPayload> {
-    const contextInstanceKey = useContext(reducerLink[INTERNAL_STORE_PROPS_ACCESSOR].context)?.instanceKey;
+    const reducerLinkRef = useRef<{ reducerLink: ReducerLink<string, TStoreState, TReducerMap, TReducerName> }>({ reducerLink });
+
+    if (reducerLinkRef.current.reducerLink !== reducerLink) {
+      console.warn(`Reducer link reference mismatch. You must pass the same reducer link on every render.`);
+    }
+
+    const actualReducerLink = reducerLinkRef.current.reducerLink;
+    const contextInstanceKey = useContext(actualReducerLink[INTERNAL_STORE_PROPS_ACCESSOR].context)?.instanceKey;
 
     return useMemo(() => {
-      const internalStoreProps = reducerLink[INTERNAL_STORE_PROPS_ACCESSOR];
+      const internalStoreProps = actualReducerLink[INTERNAL_STORE_PROPS_ACCESSOR];
 
       function dispatch(
         payload: TPayload,
@@ -50,23 +58,18 @@ export function createUseDispatcher(storeRegistry: StoreRegistry) {
         }
 
         const actualInstanceKey = instanceKey ?? contextInstanceKey ?? DEFAULT_INSTANCE_KEY;
+        const storeController = createStoreController(storeRegistry, internalStoreProps);
 
-        // TODO Вынести в отдельную функцию, т.к. уже встречается в проекте пару раз
-        if ( ! (internalStoreProps.uniqKey in storeRegistry)) {
-          throw new Error(`Store "${internalStoreProps.name}" is not registered.`);
+        if (actualInstanceKey in storeController.instances) {
+          storeController.internalStore.dispatch(actualInstanceKey, payload, actualReducerLink.reducer);
         }
-
-        // TODO Вынести в отдельную функцию, т.к. уже встречается в проекте пару раз
-        if ( ! (storeRegistry[internalStoreProps.uniqKey].instances[actualInstanceKey])) {
-          throw new Error(`Store "${internalStoreProps.name}" is not initialized for instance "${String(actualInstanceKey)}".`);
+        else {
+          const deferredActions = storeController.deferredActions[actualInstanceKey] = storeController.deferredActions[actualInstanceKey] ?? [];
+          deferredActions.push({ payload, reducer: actualReducerLink.reducer });
         }
-
-        const internalStore = storeRegistry[internalStoreProps.uniqKey].internalStore as InternalStore<TStoreState>;
-
-        internalStore.dispatch(actualInstanceKey, payload, reducerLink.reducer);
       }
 
       return dispatch;
-    }, [contextInstanceKey, reducerLink]);
+    }, [actualReducerLink, contextInstanceKey]);
   };
 }

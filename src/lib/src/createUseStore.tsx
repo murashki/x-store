@@ -9,6 +9,7 @@ import type { ReducerMap } from './types/ReducerMap.tsx';
 import type { RegisterDefaultInstance } from './types/RegisterDefaultInstance.tsx';
 import type { RegisterInstance } from './types/RegisterInstance.tsx';
 import type { Store } from './types/Store.tsx';
+import type { StoreController } from './types/StoreController.tsx';
 import type { StoreRegistry } from './types/StoreRegistry.tsx';
 import type { StoreState } from './types/StoreState.tsx';
 import { DEFAULT_INSTANCE_KEY } from './constants.tsx';
@@ -17,6 +18,16 @@ import { STORE_INSTANCE_UNREGISTERED } from './constants.tsx';
 import { createStoreController } from './createStoreController.tsx';
 
 export function createUseStore(storeRegistry: StoreRegistry) {
+  function runWakeCallbacks<
+    TStoreState extends StoreState,
+  >(storeController: StoreController<TStoreState>, instanceKey: InstanceKey): void {
+    if (storeController.wakeCallbacks[instanceKey]) {
+      for (const wakeCallback of [...storeController.wakeCallbacks[instanceKey]]) {
+        wakeCallback();
+      }
+    }
+  }
+
   function useStore<
     TStoreState extends StoreState = StoreState,
     TReducerMap extends ReducerMap<TStoreState> = ReducerMap<TStoreState>,
@@ -71,7 +82,7 @@ export function createUseStore(storeRegistry: StoreRegistry) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
     const actualInstanceKeys = useMemo(() => instanceKeys, instanceKeys);
     const ownerKeyRef = useRef<{ ownerKey: symbol }>({ ownerKey: Symbol(`ownerKey`) });
-    const initInstancesRef = useRef<{ initInstances: Record<InstanceKey, InitInstance> }>({ initInstances: {} });
+    const initInstancesRef = useRef<{ initInstances: Record<InstanceKey, InitInstance> }>({ initInstances: Object.create(null) as Record<InstanceKey, InitInstance> });
     const registerInstanceRef = useRef<{ registerInstance: RegisterInstance<TStoreState> | RegisterDefaultInstance<TStoreState> }>({ registerInstance });
     registerInstanceRef.current.registerInstance = registerInstance;
 
@@ -86,7 +97,7 @@ export function createUseStore(storeRegistry: StoreRegistry) {
           const initInstance = (prefill?: Partial<TStoreState>) => {
             const storeController = createStoreController(storeRegistry, internalStoreProps);
 
-            if (storeController.instances[instanceKey]) {
+            if (instanceKey in storeController.instances) {
               // TODO Множественная инициализация хранилища
               //   Архитектура позволяет несколько раз инициализировать одно и то же хранилище с
               //   одним и тем же ключом, однако возможно от этого стоит отказаться. Возможно
@@ -100,13 +111,16 @@ export function createUseStore(storeRegistry: StoreRegistry) {
               // TODO Убрать в логгер
               console.log({ storeRegistry });
 
-              const resetState = storeController.internalStore.initInstance(instanceKey, internalStoreProps.initialState, prefill, internalStoreProps.$$init);
-              storeController.instances[instanceKey] = { owners: [], resetState };
-              if (storeController.earlySubscribers[instanceKey]) {
-                for (const subscriber of [...storeController.earlySubscribers[instanceKey]]) {
-                  subscriber();
+              storeController.instances[instanceKey] = { owners: [] };
+              storeController.internalStore.initInstance(instanceKey, internalStoreProps.initialState, prefill, internalStoreProps.$$init);
+              if (storeController.deferredActions[instanceKey]) {
+                const deferredActions = storeController.deferredActions[instanceKey];
+                delete storeController.deferredActions[instanceKey];
+                for (const deferredAction of deferredActions) {
+                  storeController.internalStore.dispatch(instanceKey, deferredAction.payload, deferredAction.reducer);
                 }
               }
+              runWakeCallbacks(storeController, instanceKey);
             }
             storeController.instances[instanceKey].owners.push(ownerKey);
 
@@ -120,8 +134,9 @@ export function createUseStore(storeRegistry: StoreRegistry) {
                 console.log({ storeRegistry });
 
                 // TODO Надо ли оповещать слушателей если один экземпляр хранилища удалился
-                storeController.instances[instanceKey].resetState(internalStoreProps.$$reset);
+                storeController.internalStore.resetInstance(instanceKey, internalStoreProps.$$reset);
                 delete storeController.instances[instanceKey];
+                runWakeCallbacks(storeController, instanceKey);
               }
 
               delete initInstances[instanceKey];

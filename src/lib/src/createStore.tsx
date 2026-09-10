@@ -6,7 +6,8 @@ import type { ReducerMap } from './types/ReducerMap.tsx';
 import type { Store } from './types/Store.tsx';
 import type { StoreContextValue } from './types/StoreContextValue.tsx';
 import type { StoreState } from './types/StoreState.tsx';
-import { DEFAULT_INSTANCE_KEY } from './constants.tsx';
+import { INITIALIZED_STATE_NAME } from './constants.tsx';
+import { INSTANCE_KEY_STATE_NAME } from './constants.tsx';
 import { INTERNAL_STORE_PROPS_ACCESSOR } from './constants.tsx';
 import { REDUCER_LINK } from './constants.tsx';
 import { STATE_LINK } from './constants.tsx';
@@ -51,7 +52,7 @@ export function createStore<
     $$init: reducerMap.$$init,
     $$reset: reducerMap.$$reset,
     context,
-    initialState: { ...initialState, $$initialized: false, $$instanceKey: DEFAULT_INSTANCE_KEY },
+    initialState,
     name,
     uniqKey: Symbol(`Store: ` + name),
   };
@@ -68,15 +69,15 @@ export function createStore<
     };
   }
 
-  store.$$initialized = {
+  store[INITIALIZED_STATE_NAME] = {
     [INTERNAL_STORE_PROPS_ACCESSOR]: internalStoreProps,
-    stateName: `$$initialized`,
+    stateName: INITIALIZED_STATE_NAME,
     type: STATE_LINK,
   };
 
-  store.$$instanceKey = {
+  store[INSTANCE_KEY_STATE_NAME] = {
     [INTERNAL_STORE_PROPS_ACCESSOR]: internalStoreProps,
-    stateName: `$$instanceKey`,
+    stateName: INSTANCE_KEY_STATE_NAME,
     type: STATE_LINK,
   };
 

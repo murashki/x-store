@@ -238,17 +238,18 @@ import { createStore } from '../../src';
   const initialState: State = { prop: `` };
   createStore(``, initialState, {
     $$init: (state) => {
+      // @ts-expect-error
       ((_initialized: boolean) => null)(state.$$initialized);
       return state;
     },
     $$reset: (state) => {
+      // @ts-expect-error
       ((_initialized: boolean) => null)(state.$$initialized);
       return state;
     },
     reducer: (state) => {
-      ((_initialized: boolean) => null)(state.$$initialized);
       // @ts-expect-error
-      ((_initialized: string) => null)(state.$$initialized);
+      ((_initialized: boolean) => null)(state.$$initialized);
       return state;
     },
   });
@@ -284,17 +285,18 @@ import { createStore } from '../../src';
   const initialState: State = { prop: `` };
   createStore(``, initialState, {
     $$init: (state) => {
+      // @ts-expect-error
       ((_instanceKey: InstanceKey) => null)(state.$$instanceKey);
       return state;
     },
     $$reset: (state) => {
+      // @ts-expect-error
       ((_instanceKey: InstanceKey) => null)(state.$$instanceKey);
       return state;
     },
     reducer: (state) => {
-      ((_instanceKey: InstanceKey) => null)(state.$$instanceKey);
       // @ts-expect-error
-      ((_instanceKey: number) => null)(state.$$instanceKey);
+      ((_instanceKey: InstanceKey) => null)(state.$$instanceKey);
       return state;
     },
   });
