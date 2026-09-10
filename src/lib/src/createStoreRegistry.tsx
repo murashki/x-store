@@ -7,7 +7,7 @@ import { createUsePropAll } from './createUsePropAll.tsx';
 import { createUseStore } from './createUseStore.tsx';
 
 export function createStoreRegistry() {
-  const storeRegistry = Object.create(null) as StoreRegistry;
+  const storeRegistry: StoreRegistry = Object.create(null);
 
   const useStore = createUseStore(storeRegistry);
   const useProp = createUseProp(storeRegistry);

@@ -82,7 +82,7 @@ export function createUseStore(storeRegistry: StoreRegistry) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
     const actualInstanceKeys = useMemo(() => instanceKeys, instanceKeys);
     const ownerKeyRef = useRef<{ ownerKey: symbol }>({ ownerKey: Symbol(`ownerKey`) });
-    const initInstancesRef = useRef<{ initInstances: Record<InstanceKey, InitInstance> }>({ initInstances: Object.create(null) as Record<InstanceKey, InitInstance> });
+    const initInstancesRef = useRef<{ initInstances: Record<InstanceKey, InitInstance> }>({ initInstances: Object.create(null) });
     const registerInstanceRef = useRef<{ registerInstance: RegisterInstance<TStoreState> | RegisterDefaultInstance<TStoreState> }>({ registerInstance });
     registerInstanceRef.current.registerInstance = registerInstance;
 

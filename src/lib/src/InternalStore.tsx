@@ -22,10 +22,10 @@ export class InternalStore<
   private state: Record<InstanceKey, TStoreState>;
 
   constructor(name: string) {
-    this.listeners = Object.create(null) as Record<InstanceKey, Set<Listener<TStoreState>>>;
+    this.listeners = Object.create(null);
     this.listenersAll = new Set();
     this.name = name;
-    this.state = Object.create(null) as Record<InstanceKey, TStoreState>;
+    this.state = Object.create(null);
   }
 
   public getState: GetState<TStoreState> = (instanceKey) => {
@@ -48,7 +48,7 @@ export class InternalStore<
     const instanceState = this.state[instanceKey];
     const instanceResetState = resetReducer(instanceState, undefined);
 
-    const stateRest = Object.assign(Object.create(null), this.state) as Record<InstanceKey, TStoreState>;
+    const stateRest: Record<InstanceKey, TStoreState> = Object.assign(Object.create(null), this.state);
     delete stateRest[instanceKey];
     this.state = stateRest;
 

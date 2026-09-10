@@ -16,10 +16,10 @@ export function createStoreController<
   if ( ! storeController) {
     const internalStore = new InternalStore<TStoreState>(internalStoreProps.name);
     storeController = {
-      deferredActions: Object.create(null) as StoreController<TStoreState>[`deferredActions`],
-      instances: Object.create(null) as StoreController<TStoreState>[`instances`],
+      deferredActions: Object.create(null),
+      instances: Object.create(null),
       internalStore,
-      wakeCallbacks: Object.create(null) as StoreController<TStoreState>[`wakeCallbacks`],
+      wakeCallbacks: Object.create(null),
     };
     storeRegistry[internalStoreProps.uniqKey] = storeController as StoreController;
   }

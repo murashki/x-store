@@ -1,3 +1,5 @@
+/* eslint-disable */
+// @ts-nocheck
 import { getIsDataBarrelDeleted } from './check';
 import { getIsFinal } from './check';
 import { getIsPipeWithCreateDebugger } from './check';

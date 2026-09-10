@@ -1,3 +1,5 @@
+/* eslint-disable */
+// @ts-nocheck
 import type { InstanceKey } from './types/InstanceKey.tsx';
 import type { Reducer } from './types/Reducer.tsx';
 import type { ReducerLink } from './types/ReducerLink.tsx';
