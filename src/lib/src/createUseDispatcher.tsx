@@ -11,7 +11,7 @@ import type { StoreRegistry } from './types/StoreRegistry.tsx';
 import type { StoreState } from './types/StoreState.tsx';
 import { DEFAULT_INSTANCE_KEY } from './constants.tsx';
 import { INTERNAL_STORE_PROPS_ACCESSOR } from './constants.tsx';
-import { createStoreController } from './createStoreController.tsx';
+import { ensureInternalStore } from './ensureInternalStore.tsx';
 
 export function createUseDispatcher(storeRegistry: StoreRegistry) {
   return function useDispatcher<
@@ -29,7 +29,9 @@ export function createUseDispatcher(storeRegistry: StoreRegistry) {
     }
 
     const actualReducerLink = reducerLinkRef.current.reducerLink;
-    const contextInstanceKey = useContext(actualReducerLink[INTERNAL_STORE_PROPS_ACCESSOR].context)?.instanceKey;
+    const internalStoreProps = actualReducerLink[INTERNAL_STORE_PROPS_ACCESSOR];
+    const storeContextValue = useContext(internalStoreProps.context);
+    const contextInstanceKey = storeContextValue?.instanceKey;
 
     return useMemo(() => {
       const internalStoreProps = actualReducerLink[INTERNAL_STORE_PROPS_ACCESSOR];
@@ -58,15 +60,9 @@ export function createUseDispatcher(storeRegistry: StoreRegistry) {
         }
 
         const actualInstanceKey = instanceKey ?? contextInstanceKey ?? DEFAULT_INSTANCE_KEY;
-        const storeController = createStoreController(storeRegistry, internalStoreProps);
+        const internalStore = ensureInternalStore(storeRegistry, internalStoreProps);
 
-        if (actualInstanceKey in storeController.instances) {
-          storeController.internalStore.dispatch(actualInstanceKey, payload, actualReducerLink.reducer);
-        }
-        else {
-          const deferredActions = storeController.deferredActions[actualInstanceKey] = storeController.deferredActions[actualInstanceKey] ?? [];
-          deferredActions.push({ payload, reducer: actualReducerLink.reducer });
-        }
+        internalStore.dispatch(actualInstanceKey, actualReducerLink.reducer, payload);
       }
 
       return dispatch;

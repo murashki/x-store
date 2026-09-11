@@ -7,8 +7,8 @@ export type InitInstance<
 > = {
   (
     instanceKey: InstanceKey,
-    initialState: TStoreState,
-    prefill: undefined | Partial<TStoreState>,
     initReducer: Reducer<TStoreState, Partial<TStoreState>>,
+    initialState: TStoreState,
+    prefill?: Partial<TStoreState>,
   ): void;
 };

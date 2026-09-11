@@ -5,5 +5,5 @@ export type StoreContextValue<
   TStoreState extends StoreState = StoreState,
 > = {
   instanceKey: InstanceKey;
-  prefill?: Partial<TStoreState>;
+  uninitializedState: TStoreState;
 };

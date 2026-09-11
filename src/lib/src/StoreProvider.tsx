@@ -15,7 +15,8 @@ export function createStoreProvider(useStore: ReturnType<typeof createUseStore>)
     TStoreState extends StoreState = StoreState,
     TReducerMap extends ReducerMap<TStoreState> = ReducerMap<TStoreState>,
   >(props: StoreProviderProps<TStoreName, TStoreState, TReducerMap>) {
-    const Context = props.store[INTERNAL_STORE_PROPS_ACCESSOR].context;
+    const internalStoreProps = props.store[INTERNAL_STORE_PROPS_ACCESSOR];
+    const Context = internalStoreProps.context;
     const actualInstanceKey = props.instanceKey ?? DEFAULT_INSTANCE_KEY;
     const prefillRef = useRef<{ prefill: undefined | Partial<TStoreState> }>({ prefill: props.prefill });
 
@@ -24,8 +25,8 @@ export function createStoreProvider(useStore: ReturnType<typeof createUseStore>)
     });
 
     const contextValue = useMemo<StoreContextValue<TStoreState>>(() => {
-      return { instanceKey: actualInstanceKey, prefill: prefillRef.current.prefill };
-    }, [actualInstanceKey]);
+      return { instanceKey: actualInstanceKey, uninitializedState: { ...internalStoreProps.initialState, ...prefillRef.current.prefill } };
+    }, [actualInstanceKey, internalStoreProps]);
 
     return (
       <Context.Provider

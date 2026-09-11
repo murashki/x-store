@@ -6,6 +6,8 @@ export const INITIALIZED_STATE_NAME = `$$initialized` as const;
 
 export const INSTANCE_KEY_STATE_NAME = `$$instanceKey` as const;
 
+export const INTERNAL_BUG_MESSAGE = `This must never happen and may mean a bug inside the library itself. Please report it to the library developers.`;
+
 export const INTERNAL_STORE_PROPS_ACCESSOR: unique symbol = Symbol(`INTERNAL_STORE_PROPS`);
 
 export const REDUCER_LINK: unique symbol = Symbol(`REDUCER_LINK`);

@@ -1,4 +1,5 @@
 import { useCallback } from 'react';
+import { useRef } from 'react';
 import { useSyncExternalStoreWithSelector } from 'use-sync-external-store/with-selector';
 
 import type { InstanceKey } from './types/InstanceKey.tsx';
@@ -8,7 +9,7 @@ import type { StoreRegistry } from './types/StoreRegistry.tsx';
 import type { StoreState } from './types/StoreState.tsx';
 import type { UsePropAll } from './types/UsePropAll.tsx';
 import { INTERNAL_STORE_PROPS_ACCESSOR } from './constants.tsx';
-import { createStoreController } from './createStoreController.tsx';
+import { ensureInternalStore } from './ensureInternalStore.tsx';
 
 export function createUsePropAll(storeRegistry: StoreRegistry): UsePropAll {
   return function usePropAll<
@@ -16,17 +17,23 @@ export function createUsePropAll(storeRegistry: StoreRegistry): UsePropAll {
     TReducerMap extends ReducerMap<TStoreState> = ReducerMap<TStoreState>,
     TStateName extends keyof TStoreState = keyof TStoreState,
   >(stateLink: StateLink<string, TStoreState, TReducerMap, TStateName>, instanceKeys?: InstanceKey[] | ((state: TStoreState) => boolean)): [instanceKey: InstanceKey, state: TStoreState[TStateName]][] {
-    const internalStoreProps = stateLink[INTERNAL_STORE_PROPS_ACCESSOR];
+    const stateLinkRef = useRef<{ stateLink: StateLink<string, TStoreState, TReducerMap, TStateName> }>({ stateLink });
 
-    const storeController = createStoreController(storeRegistry, internalStoreProps);
+    if (stateLinkRef.current.stateLink !== stateLink) {
+      console.warn(`State link reference mismatch. You must pass the same state link on every render.`);
+    }
+
+    const actualStateLink = stateLinkRef.current.stateLink;
+    const internalStoreProps = actualStateLink[INTERNAL_STORE_PROPS_ACCESSOR];
+    const internalStore = ensureInternalStore(storeRegistry, internalStoreProps);
 
     const subscribe = useCallback((listener: () => void) => {
-      return storeController.internalStore.subscribeAll(listener);
-    }, [storeController]);
+      return internalStore.subscribeAll(listener);
+    }, [internalStore]);
 
     const getSnapshot = useCallback(() => {
-      return storeController.internalStore.getStateAll();
-    }, [storeController]);
+      return internalStore.getStateAll();
+    }, [internalStore]);
 
     const selector = useCallback((stateAll: Record<InstanceKey, TStoreState>) => {
       let actualInstanceKeys: InstanceKey[];
@@ -45,9 +52,9 @@ export function createUsePropAll(storeRegistry: StoreRegistry): UsePropAll {
       }
 
       return actualInstanceKeys.map((instanceKey): [instanceKey: InstanceKey, state: TStoreState[TStateName]] => {
-        return [instanceKey, stateAll[instanceKey][stateLink.stateName]];
+        return [instanceKey, stateAll[instanceKey][actualStateLink.stateName]];
       });
-    }, [instanceKeys, stateLink]);
+    }, [actualStateLink, instanceKeys]);
 
     return useSyncExternalStoreWithSelector(
       subscribe,

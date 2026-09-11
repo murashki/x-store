@@ -10,7 +10,7 @@ export type Dispatch<
     TPayload extends void | Payload = void | Payload,
   >(
     instanceKey: InstanceKey,
-    payload: TPayload,
     reducer: Reducer<TStoreState, TPayload>,
+    payload: TPayload,
   ): void
 };

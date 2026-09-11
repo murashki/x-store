@@ -1,3 +1,3 @@
-import type { StoreController } from './StoreController.tsx';
+import type { InternalStore } from '../InternalStore.tsx';
 
-export type StoreRegistry = Record<symbol, StoreController>;
+export type StoreRegistry = Record<symbol, InternalStore>;

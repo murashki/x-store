@@ -11,7 +11,7 @@ export type Listener<
     TReducer extends Reducer<TStoreState, TPayload> = Reducer<TStoreState, TPayload>,
   >(
     instanceKey: InstanceKey,
-    payload: TPayload,
     reducer: TReducer,
+    payload: TPayload,
   ): void;
 };
