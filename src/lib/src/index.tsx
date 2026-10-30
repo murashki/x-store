@@ -19,5 +19,7 @@ export const {
   useDispatcher,
   useProp,
   usePropAll,
+  usePropSelector,
+  usePropSelectorAll,
   useStore,
 } = createStoreRegistry();

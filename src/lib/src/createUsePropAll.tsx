@@ -10,6 +10,7 @@ import type { StoreState } from './types/StoreState.tsx';
 import type { UsePropAll } from './types/UsePropAll.tsx';
 import { INTERNAL_STORE_PROPS_ACCESSOR } from './constants.tsx';
 import { ensureInternalStore } from './ensureInternalStore.tsx';
+import { pickPropAll } from './pickPropAll.tsx';
 
 export function createUsePropAll(storeRegistry: StoreRegistry): UsePropAll {
   return function usePropAll<
@@ -36,24 +37,7 @@ export function createUsePropAll(storeRegistry: StoreRegistry): UsePropAll {
     }, [internalStore]);
 
     const selector = useCallback((stateAll: Record<InstanceKey, TStoreState>) => {
-      let actualInstanceKeys: InstanceKey[];
-      if (instanceKeys == null) {
-        actualInstanceKeys = [...Object.keys(stateAll), ...Object.getOwnPropertySymbols(stateAll)];
-      }
-      else if (typeof instanceKeys === `function`) {
-        actualInstanceKeys = [...Object.keys(stateAll), ...Object.getOwnPropertySymbols(stateAll)].filter((instanceKey) => {
-          return instanceKeys(stateAll[instanceKey]);
-        });
-      }
-      else {
-        actualInstanceKeys = instanceKeys.filter((instanceKey) => {
-          return instanceKey in stateAll;
-        });
-      }
-
-      return actualInstanceKeys.map((instanceKey): [instanceKey: InstanceKey, state: TStoreState[TStateName]] => {
-        return [instanceKey, stateAll[instanceKey][actualStateLink.stateName]];
-      });
+      return pickPropAll(stateAll, actualStateLink.stateName, instanceKeys);
     }, [actualStateLink, instanceKeys]);
 
     return useSyncExternalStoreWithSelector(
