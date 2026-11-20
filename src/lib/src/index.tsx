@@ -1,6 +1,8 @@
 import { createStoreRegistry } from './createStoreRegistry.tsx';
 
 export { type InstanceKey } from './types/InstanceKey.tsx';
+export { type Locked } from './types/Locked.tsx';
+export { type Patch } from './types/Patch.tsx';
 export { type RequestState } from './types/RequestState.tsx';
 export { type RequestAbortedState } from './types/RequestState/RequestAbortedState.tsx';
 export { type RequestFulfilledState } from './types/RequestState/RequestFulfilledState.tsx';
@@ -11,6 +13,8 @@ export { DESTROY } from './constants.tsx';
 export { createStore } from './createStore.tsx';
 export { createStoreRegistry } from './createStoreRegistry.tsx';
 export { InternalStore } from './InternalStore.tsx';
+export { LOCKED } from './LOCKED.tsx';
+export { OVERRIDE_LOCKED } from './OVERRIDE_LOCKED.tsx';
 export { requestState } from './requestState.tsx';
 export { requestStatus } from './requestStatus.tsx';
 

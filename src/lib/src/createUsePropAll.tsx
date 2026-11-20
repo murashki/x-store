@@ -8,6 +8,8 @@ import type { StateLink } from './types/StateLink.tsx';
 import type { StoreRegistry } from './types/StoreRegistry.tsx';
 import type { StoreState } from './types/StoreState.tsx';
 import type { UsePropAll } from './types/UsePropAll.tsx';
+import type { Unlocked } from './types/Unlocked.tsx';
+import type { UnlockedState } from './types/UnlockedState.tsx';
 import { INTERNAL_STORE_PROPS_ACCESSOR } from './constants.tsx';
 import { ensureInternalStore } from './ensureInternalStore.tsx';
 import { pickPropAll } from './pickPropAll.tsx';
@@ -17,7 +19,7 @@ export function createUsePropAll(storeRegistry: StoreRegistry): UsePropAll {
     TStoreState extends StoreState = StoreState,
     TReducerMap extends ReducerMap<TStoreState> = ReducerMap<TStoreState>,
     TStateName extends keyof TStoreState = keyof TStoreState,
-  >(stateLink: StateLink<string, TStoreState, TReducerMap, TStateName>, instanceKeys?: InstanceKey[] | ((state: TStoreState) => boolean)): [instanceKey: InstanceKey, state: TStoreState[TStateName]][] {
+  >(stateLink: StateLink<string, TStoreState, TReducerMap, TStateName>, instanceKeys?: InstanceKey[] | ((state: UnlockedState<TStoreState>) => boolean)): [instanceKey: InstanceKey, state: Unlocked<TStoreState[TStateName]>][] {
     const stateLinkRef = useRef<{ stateLink: StateLink<string, TStoreState, TReducerMap, TStateName> }>({ stateLink });
 
     if (stateLinkRef.current.stateLink !== stateLink) {
@@ -36,7 +38,7 @@ export function createUsePropAll(storeRegistry: StoreRegistry): UsePropAll {
       return internalStore.getStateAll();
     }, [internalStore]);
 
-    const selector = useCallback((stateAll: Record<InstanceKey, TStoreState>) => {
+    const selector = useCallback((stateAll: Record<InstanceKey, UnlockedState<TStoreState>>) => {
       return pickPropAll(stateAll, actualStateLink.stateName, instanceKeys);
     }, [actualStateLink, instanceKeys]);
 

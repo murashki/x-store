@@ -1,6 +1,7 @@
 import React from 'react';
 
 import type { InstanceKey } from './InstanceKey.tsx';
+import type { Prefill } from './Prefill.tsx';
 import type { ReducerMap } from './ReducerMap.tsx';
 import type { Store } from './Store.tsx';
 import type { StoreState } from './StoreState.tsx';
@@ -11,6 +12,6 @@ export type StoreProviderProps<
   TReducerMap extends ReducerMap<TStoreState> = ReducerMap<TStoreState>,
 > = React.PropsWithChildren<{
   instanceKey?: InstanceKey;
-  prefill?: Partial<TStoreState>;
+  prefill?: Prefill<TStoreState>;
   store: Store<TStoreName, TStoreState, TReducerMap>;
 }>;

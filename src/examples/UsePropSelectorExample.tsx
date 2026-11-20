@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { useRef } from 'react';
 import React from 'react';
 
+import type { Patch } from '../lib/src';
 import { createStore } from '../lib/src';
 import { useDispatcher } from '../lib/src';
 import { useProp } from '../lib/src';
@@ -17,15 +18,14 @@ const initialCounterState: CounterState = {
 };
 
 const counterStore = createStore(`counter`, initialCounterState, {
-  $$init: (state): CounterState => {
-    return state;
+  $$init: (): Patch<CounterState> => {
+    return {};
   },
-  $$reset: (state): CounterState => {
-    return state;
+  $$reset: (): Patch<CounterState> => {
+    return {};
   },
-  increment: (state): CounterState => {
+  increment: (state): Patch<CounterState> => {
     return {
-      ...state,
       count: state.count + 1,
     };
   },
@@ -46,6 +46,7 @@ export const App = React.memo(function App() {
     <div>
       <CounterDisplay />
       <CounterLogger />
+      <IncorrectCounterLogger />
     </div>
   );
 });
@@ -100,5 +101,15 @@ const CounterLogger = React.memo(function CounterLogger() {
         Log current count
       </button>
     </div>
+  );
+});
+
+const IncorrectCounterLogger = React.memo(function IncorrectCounterLogger() {
+  const count = useProp(counterStore.count);
+  // Некорректное использование. Так делать не надо.
+  const selectCount = usePropSelector({ ...counterStore.count });
+
+  return (
+    <div>IncorrectCounterLogger count: {count}, selected: {selectCount()}</div>
   );
 });

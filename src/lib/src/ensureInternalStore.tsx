@@ -13,7 +13,7 @@ export function ensureInternalStore<
 ): InternalStore<TStoreState> {
   let internalStore = storeRegistry[internalStoreProps.uniqKey] as InternalStore<TStoreState>;
   if ( ! internalStore) {
-    internalStore = new InternalStore<TStoreState>(internalStoreProps.name);
+    internalStore = new InternalStore<TStoreState>(internalStoreProps.name, internalStoreProps.lockedStateNames);
     storeRegistry[internalStoreProps.uniqKey] = internalStore as InternalStore;
   }
   return internalStore;

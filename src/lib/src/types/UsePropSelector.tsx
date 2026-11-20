@@ -1,23 +1,24 @@
-import type { InitializedStateLink } from './InitializedStateLink.tsx';
 import type { InstanceKey } from './InstanceKey.tsx';
-import type { InstanceKeyStateLink } from './InstanceKeyStateLink.tsx';
 import type { ReducerMap } from './ReducerMap.tsx';
+import type { SpecialInitializedStateLink } from './SpecialInitializedStateLink.tsx';
+import type { SpecialInstanceKeyStateLink } from './SpecialInstanceKeyStateLink.tsx';
 import type { StateLink } from './StateLink.tsx';
 import type { StoreState } from './StoreState.tsx';
+import type { Unlocked } from './Unlocked.tsx';
 
 export type UsePropSelector = {
   <
     TStoreState extends StoreState = StoreState,
     TReducerMap extends ReducerMap<TStoreState> = ReducerMap<TStoreState>,
   >(
-    stateLink: InitializedStateLink<string, TStoreState, TReducerMap>,
+    stateLink: SpecialInitializedStateLink<string, TStoreState, TReducerMap>,
     instanceKey?: InstanceKey,
   ): () => boolean;
   <
     TStoreState extends StoreState = StoreState,
     TReducerMap extends ReducerMap<TStoreState> = ReducerMap<TStoreState>,
   >(
-    stateLink: InstanceKeyStateLink<string, TStoreState, TReducerMap>,
+    stateLink: SpecialInstanceKeyStateLink<string, TStoreState, TReducerMap>,
     instanceKey?: InstanceKey,
   ): () => InstanceKey;
   <
@@ -27,5 +28,5 @@ export type UsePropSelector = {
   >(
     stateLink: StateLink<string, TStoreState, TReducerMap, TStateName>,
     instanceKey?: InstanceKey,
-  ): () => TStoreState[TStateName];
+  ): () => Unlocked<TStoreState[TStateName]>;
 };

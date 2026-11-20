@@ -21,7 +21,6 @@
     "vite": "^6.3.5"
   },
   "name": "beestate-main",
-  "private": true,
   "scripts": {
     "build": "tsc -b && vite build",
     "dev": "vite",

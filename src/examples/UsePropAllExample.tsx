@@ -3,6 +3,7 @@ import { useRef } from 'react';
 import React from 'react';
 
 import type { InstanceKey } from '../lib/src';
+import type { Patch } from '../lib/src';
 import { createStore } from '../lib/src';
 import { useDispatcher } from '../lib/src';
 import { useProp } from '../lib/src';
@@ -18,15 +19,14 @@ const initialCounterState: CounterState = {
 };
 
 const counterStore = createStore(`counter`, initialCounterState, {
-  $$init: (state): CounterState => {
-    return state;
+  $$init: (): Patch<CounterState> => {
+    return {};
   },
-  $$reset: (state): CounterState => {
-    return state;
+  $$reset: (): Patch<CounterState> => {
+    return {};
   },
-  increment: (state): CounterState => {
+  increment: (state): Patch<CounterState> => {
     return {
-      ...state,
       count: state.count + 1,
     };
   },
@@ -62,6 +62,7 @@ export const App = React.memo(function App() {
       <Summary />
       <PickedSummary />
       <PositiveSummary />
+      <IncorrectSummary />
     </div>
   );
 });
@@ -137,5 +138,14 @@ const PositiveSummary = React.memo(function PositiveSummary() {
       <div>Positive instances: {countAll.map(([instanceKey, count]) => `${String(instanceKey)}=${count}`).join(`, `)}</div>
       <div>PositiveSummary renders: {renderCountRef.current}</div>
     </div>
+  );
+});
+
+const IncorrectSummary = React.memo(function IncorrectSummary() {
+  // Некорректное использование. Так делать не надо.
+  const countAll = usePropAll({ ...counterStore.count });
+
+  return (
+    <div>IncorrectSummary: {countAll.map(([instanceKey, count]) => `${String(instanceKey)}=${count}`).join(`, `)}</div>
   );
 });

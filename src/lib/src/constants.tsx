@@ -10,8 +10,12 @@ export const INTERNAL_BUG_MESSAGE = `This must never happen and may mean a bug i
 
 export const INTERNAL_STORE_PROPS_ACCESSOR: unique symbol = Symbol(`INTERNAL_STORE_PROPS`);
 
-export const REDUCER_LINK: unique symbol = Symbol(`REDUCER_LINK`);
+export const LOCKED_FLAG: unique symbol = Symbol(`LOCKED`);
 
-export const STATE_LINK: unique symbol = Symbol(`STATE_LINK`);
+export const LOCKED_OVERRIDE_FLAG: unique symbol = Symbol(`LOCKED_OVERRIDE`);
 
-export const STORE_INSTANCE_UNREGISTERED: unique symbol = Symbol(`STORE_INSTANCE_UNREGISTERED_INSTRUCTION`);
+export const REDUCER_LINK_FLAG: unique symbol = Symbol(`REDUCER_LINK`);
+
+export const STATE_LINK_FLAG: unique symbol = Symbol(`STATE_LINK`);
+
+export const STORE_INSTANCE_UNREGISTERED: unique symbol = Symbol(`STORE_INSTANCE_UNREGISTERED`);

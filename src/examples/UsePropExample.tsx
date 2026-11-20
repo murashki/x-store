@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { useRef } from 'react';
 import React from 'react';
 
+import type { Patch } from '../lib/src';
 import { createStore } from '../lib/src';
 import { useDispatcher } from '../lib/src';
 import { useProp } from '../lib/src';
@@ -16,15 +17,14 @@ const initialCounterState: CounterState = {
 };
 
 const counterStore = createStore(`counter`, initialCounterState, {
-  $$init: (state): CounterState => {
-    return state;
+  $$init: (): Patch<CounterState> => {
+    return {};
   },
-  $$reset: (state): CounterState => {
-    return state;
+  $$reset: (): Patch<CounterState> => {
+    return {};
   },
-  increment: (state): CounterState => {
+  increment: (state): Patch<CounterState> => {
     return {
-      ...state,
       count: state.count + 1,
     };
   },
@@ -46,6 +46,7 @@ export const App = React.memo(function App() {
       <CounterDisplay />
       <CounterButton />
       <Sibling />
+      <IncorrectCounterDisplay />
     </div>
   );
 });
@@ -95,5 +96,14 @@ const Sibling = React.memo(function Sibling() {
 
   return (
     <div>Sibling renders: {renderCountRef.current}</div>
+  );
+});
+
+const IncorrectCounterDisplay = React.memo(function IncorrectCounterDisplay() {
+  // Некорректное использование. Так делать не надо.
+  const count = useProp({ ...counterStore.count });
+
+  return (
+    <div>IncorrectCounterDisplay count: {count}</div>
   );
 });

@@ -2,6 +2,8 @@ import type { InstanceKey } from './InstanceKey.tsx';
 import type { ReducerMap } from './ReducerMap.tsx';
 import type { StateLink } from './StateLink.tsx';
 import type { StoreState } from './StoreState.tsx';
+import type { Unlocked } from './Unlocked.tsx';
+import type { UnlockedState } from './UnlockedState.tsx';
 
 export type UsePropSelectorAll = {
   <
@@ -10,6 +12,6 @@ export type UsePropSelectorAll = {
     TStateName extends keyof TStoreState = keyof TStoreState,
   >(
     stateLink: StateLink<string, TStoreState, TReducerMap, TStateName>,
-    instanceKeys?: InstanceKey[] | ((state: TStoreState) => boolean),
-  ): () => [instanceKey: InstanceKey, state: TStoreState[TStateName]][];
+    instanceKeys?: InstanceKey[] | ((state: UnlockedState<TStoreState>) => boolean),
+  ): () => [instanceKey: InstanceKey, state: Unlocked<TStoreState[TStateName]>][];
 };

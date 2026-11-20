@@ -1,4 +1,5 @@
 import type { InstanceKey } from '../../src';
+import type { Patch } from '../../src';
 import { createStore } from '../../src';
 import { createStoreRegistry } from '../../src';
 
@@ -7,9 +8,9 @@ import { createStoreRegistry } from '../../src';
   type State = { prop: string };
   const initialState: State = { prop: `` };
   const store = createStore(``, initialState, {
-    $$init: (state) => state,
-    $$reset: (state) => state,
-    reducer: (state): State => ({ ...state }),
+    $$init: () => ({}),
+    $$reset: () => ({}),
+    reducer: (): Patch<State> => ({}),
   });
   // @ts-expect-error
   useProp();
@@ -25,9 +26,9 @@ import { createStoreRegistry } from '../../src';
   type State = { prop: string };
   const initialState: State = { prop: `` };
   const store = createStore(``, initialState, {
-    $$init: (state) => state,
-    $$reset: (state) => state,
-    reducer: (state): State => ({ ...state }),
+    $$init: () => ({}),
+    $$reset: () => ({}),
+    reducer: (): Patch<State> => ({}),
   });
   useProp(store.prop, `0`);
   useProp(store.prop, Symbol());
@@ -40,9 +41,9 @@ import { createStoreRegistry } from '../../src';
   type State = { prop: string };
   const initialState: State = { prop: `` };
   const store = createStore(``, initialState, {
-    $$init: (state) => state,
-    $$reset: (state) => state,
-    reducer: (state): State => ({ ...state }),
+    $$init: () => ({}),
+    $$reset: () => ({}),
+    reducer: (): Patch<State> => ({}),
   });
   const prop = useProp(store.prop);
   ((_prop: string) => null)(prop);
@@ -55,9 +56,9 @@ import { createStoreRegistry } from '../../src';
   type State = { prop: string };
   const initialState: State = { prop: `` };
   const store = createStore(``, initialState, {
-    $$init: (state) => state,
-    $$reset: (state) => state,
-    reducer: (state): State => ({ ...state }),
+    $$init: () => ({}),
+    $$reset: () => ({}),
+    reducer: (): Patch<State> => ({}),
   });
   useProp(store.$$initialized);
   useProp(store.$$initialized, `0`);
@@ -71,9 +72,9 @@ import { createStoreRegistry } from '../../src';
   type State = { prop: string };
   const initialState: State = { prop: `` };
   const store = createStore(``, initialState, {
-    $$init: (state) => state,
-    $$reset: (state) => state,
-    reducer: (state): State => ({ ...state }),
+    $$init: () => ({}),
+    $$reset: () => ({}),
+    reducer: (): Patch<State> => ({}),
   });
   const initialized = useProp(store.$$initialized);
   ((_initialized: boolean) => null)(initialized);
@@ -86,9 +87,9 @@ import { createStoreRegistry } from '../../src';
   type State = { prop: string };
   const initialState: State = { prop: `` };
   const store = createStore(``, initialState, {
-    $$init: (state) => state,
-    $$reset: (state) => state,
-    reducer: (state): State => ({ ...state }),
+    $$init: () => ({}),
+    $$reset: () => ({}),
+    reducer: (): Patch<State> => ({}),
   });
   useProp(store.$$instanceKey);
   useProp(store.$$instanceKey, `0`);

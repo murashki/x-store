@@ -1,4 +1,5 @@
 import type { InstanceKey } from '../../src';
+import type { Patch } from '../../src';
 import { createStore } from '../../src';
 import { createStoreRegistry } from '../../src';
 
@@ -7,9 +8,9 @@ import { createStoreRegistry } from '../../src';
   type State = { prop: string };
   const initialState: State = { prop: `` };
   const store = createStore(``, initialState, {
-    $$init: (state) => state,
-    $$reset: (state) => state,
-    reducer: (state): State => ({ ...state }),
+    $$init: () => ({}),
+    $$reset: () => ({}),
+    reducer: (): Patch<State> => ({}),
   });
   // @ts-expect-error
   usePropSelector();
@@ -25,9 +26,9 @@ import { createStoreRegistry } from '../../src';
   type State = { prop: string };
   const initialState: State = { prop: `` };
   const store = createStore(``, initialState, {
-    $$init: (state) => state,
-    $$reset: (state) => state,
-    reducer: (state): State => ({ ...state }),
+    $$init: () => ({}),
+    $$reset: () => ({}),
+    reducer: (): Patch<State> => ({}),
   });
   usePropSelector(store.prop, `0`);
   usePropSelector(store.prop, Symbol());
@@ -40,9 +41,9 @@ import { createStoreRegistry } from '../../src';
   type State = { prop: string };
   const initialState: State = { prop: `` };
   const store = createStore(``, initialState, {
-    $$init: (state) => state,
-    $$reset: (state) => state,
-    reducer: (state): State => ({ ...state }),
+    $$init: () => ({}),
+    $$reset: () => ({}),
+    reducer: (): Patch<State> => ({}),
   });
   const selectProp = usePropSelector(store.prop);
   ((_selectProp: () => string) => null)(selectProp);
@@ -61,9 +62,9 @@ import { createStoreRegistry } from '../../src';
   type State = { prop: string };
   const initialState: State = { prop: `` };
   const store = createStore(``, initialState, {
-    $$init: (state) => state,
-    $$reset: (state) => state,
-    reducer: (state): State => ({ ...state }),
+    $$init: () => ({}),
+    $$reset: () => ({}),
+    reducer: (): Patch<State> => ({}),
   });
   usePropSelector(store.$$initialized);
   usePropSelector(store.$$initialized, `0`);
@@ -81,9 +82,9 @@ import { createStoreRegistry } from '../../src';
   type State = { prop: string };
   const initialState: State = { prop: `` };
   const store = createStore(``, initialState, {
-    $$init: (state) => state,
-    $$reset: (state) => state,
-    reducer: (state): State => ({ ...state }),
+    $$init: () => ({}),
+    $$reset: () => ({}),
+    reducer: (): Patch<State> => ({}),
   });
   usePropSelector(store.$$instanceKey);
   usePropSelector(store.$$instanceKey, `0`);

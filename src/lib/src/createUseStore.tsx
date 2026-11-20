@@ -4,6 +4,7 @@ import { useMemo } from 'react';
 import { useRef } from 'react';
 
 import type { InstanceKey } from './types/InstanceKey.tsx';
+import type { Prefill } from './types/Prefill.tsx';
 import type { ReducerMap } from './types/ReducerMap.tsx';
 import type { RegisterDefaultInstance } from './types/RegisterDefaultInstance.tsx';
 import type { RegisterInstance } from './types/RegisterInstance.tsx';
@@ -78,7 +79,7 @@ export function createUseStore(storeRegistry: StoreRegistry) {
 
       for (const instanceKey of actualInstanceKeys) {
         if ( ! registeredInstances[instanceKey]) {
-          const initInstance = (prefill?: Partial<TStoreState>) => {
+          const initInstance = (prefill?: Prefill<TStoreState>) => {
             const internalStore = ensureInternalStore(storeRegistry, internalStoreProps);
             const owner = ! internalStore.isInitialized(instanceKey);
 
@@ -88,7 +89,7 @@ export function createUseStore(storeRegistry: StoreRegistry) {
               // TODO Убрать в логгер
               console.log({ storeRegistry });
 
-              internalStore.initInstance(instanceKey, internalStoreProps.$$init, internalStoreProps.initialState, prefill);
+              internalStore.initInstance(instanceKey, internalStoreProps.$$init, internalStoreProps.unlockedInitialState, prefill);
             }
             else {
               console.warn(`Store instance is already initialized, initialization skipped [store: ${internalStore.name}, instanceKey: ${instanceKey.toString()}]`);

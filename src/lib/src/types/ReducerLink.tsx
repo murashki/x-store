@@ -1,5 +1,5 @@
 import { INTERNAL_STORE_PROPS_ACCESSOR } from '../constants.tsx';
-import { REDUCER_LINK } from '../constants.tsx';
+import { REDUCER_LINK_FLAG } from '../constants.tsx';
 import type { InternalStoreProps } from './InternalStoreProps.tsx';
 import type { Reducer } from './Reducer.tsx';
 import type { ReducerMap } from './ReducerMap.tsx';
@@ -15,5 +15,5 @@ export type ReducerLink<
   [INTERNAL_STORE_PROPS_ACCESSOR]: InternalStoreProps<TStoreName, TStoreState, TReducerMap>;
   reducer: Reducer<TStoreState, ReducerPayload<TReducerMap[TReducerName]>>,
   reducerName: TReducerName,
-  type: typeof REDUCER_LINK,
+  type: typeof REDUCER_LINK_FLAG,
 };

@@ -8,6 +8,7 @@ import type { StateLink } from './types/StateLink.tsx';
 import type { StoreRegistry } from './types/StoreRegistry.tsx';
 import type { StoreState } from './types/StoreState.tsx';
 import type { UsePropSelector } from './types/UsePropSelector.tsx';
+import type { Unlocked } from './types/Unlocked.tsx';
 import { DEFAULT_INSTANCE_KEY } from './constants.tsx';
 import { INITIALIZED_STATE_NAME } from './constants.tsx';
 import { INSTANCE_KEY_STATE_NAME } from './constants.tsx';
@@ -19,7 +20,7 @@ export function createUsePropSelector(storeRegistry: StoreRegistry): UsePropSele
     TStoreState extends StoreState = StoreState,
     TReducerMap extends ReducerMap<TStoreState> = ReducerMap<TStoreState>,
     TStateName extends keyof TStoreState = keyof TStoreState,
-  >(stateLink: StateLink<string, TStoreState, TReducerMap, TStateName>, instanceKey?: InstanceKey): () => TStoreState[TStateName] {
+  >(stateLink: StateLink<string, TStoreState, TReducerMap, TStateName>, instanceKey?: InstanceKey): () => Unlocked<TStoreState[TStateName]> {
     const stateLinkRef = useRef<{ stateLink: StateLink<string, TStoreState, TReducerMap, TStateName> }>({ stateLink });
 
     if (stateLinkRef.current.stateLink !== stateLink) {
@@ -34,14 +35,14 @@ export function createUsePropSelector(storeRegistry: StoreRegistry): UsePropSele
 
     const uninitializedState = storeContextValue?.instanceKey === actualInstanceKey
       ? storeContextValue.uninitializedState
-      : internalStoreProps.initialState;
+      : internalStoreProps.unlockedInitialState;
 
-    return useCallback((): TStoreState[TStateName] => {
+    return useCallback((): Unlocked<TStoreState[TStateName]> => {
       if (actualStateLink.stateName === INITIALIZED_STATE_NAME) {
-        return internalStore.isInitialized(actualInstanceKey) as TStoreState[TStateName];
+        return internalStore.isInitialized(actualInstanceKey) as Unlocked<TStoreState[TStateName]>;
       }
       else if (actualStateLink.stateName === INSTANCE_KEY_STATE_NAME) {
-        return actualInstanceKey as TStoreState[TStateName];
+        return actualInstanceKey as Unlocked<TStoreState[TStateName]>;
       }
       else if (internalStore.isInitialized(actualInstanceKey)) {
         return internalStore.getState(actualInstanceKey)[actualStateLink.stateName];

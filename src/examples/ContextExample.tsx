@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import React from 'react';
 
+import type { Patch } from '../lib/src';
 import { createStore } from '../lib/src';
 import { StoreProvider } from '../lib/src';
 import { useDispatcher } from '../lib/src';
@@ -16,15 +17,14 @@ const initialAppState = {
 };
 
 const appStore = createStore(`app`, initialAppState, {
-  $$init: (state): AppState => {
-    return state;
+  $$init: (): Patch<AppState> => {
+    return {};
   },
-  $$reset: (state): AppState => {
-    return state;
+  $$reset: (): Patch<AppState> => {
+    return {};
   },
-  formToggle: (state): AppState => {
+  formToggle: (state): Patch<AppState> => {
     return {
-      ...state,
       formOpen: ! state.formOpen,
     };
   },
@@ -39,21 +39,19 @@ const initialFormState: FormState = {
 };
 
 const formStore = createStore(`form`, initialFormState, {
-  $$init: (state): FormState => {
-    return state;
+  $$init: (): Patch<FormState> => {
+    return {};
   },
-  $$reset: (state): FormState => {
-    return state;
+  $$reset: (): Patch<FormState> => {
+    return {};
   },
-  productNameChange: (state, payload: ProductNameChangePayload): FormState => {
+  productNameChange: (state, payload: ProductNameChangePayload): Patch<FormState> => {
     return {
-      ...state,
       productName: payload.productName,
     };
   },
-  productNameClear: (state): FormState => {
+  productNameClear: (): Patch<FormState> => {
     return {
-      ...state,
       productName: ``,
     };
   },

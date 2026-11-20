@@ -44,6 +44,7 @@ export default tseslint.config(
       '@typescript-eslint/no-unused-vars': [
         'error',
         {
+          args: 'after-used',
           argsIgnorePattern: '^_',
         },
       ],

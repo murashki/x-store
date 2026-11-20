@@ -1,4 +1,5 @@
 import type { InstanceKey } from '../../src';
+import type { Patch } from '../../src';
 import { createStore } from '../../src';
 import { createStoreRegistry } from '../../src';
 
@@ -7,9 +8,9 @@ import { createStoreRegistry } from '../../src';
   type State = { prop: string };
   const initialState: State = { prop: `` };
   const store = createStore(``, initialState, {
-    $$init: (state) => state,
-    $$reset: (state) => state,
-    reducer: (state): State => ({ ...state }),
+    $$init: () => ({}),
+    $$reset: () => ({}),
+    reducer: (): Patch<State> => ({}),
   });
   // @ts-expect-error
   usePropSelectorAll();
@@ -25,9 +26,9 @@ import { createStoreRegistry } from '../../src';
   type State = { prop: string };
   const initialState: State = { prop: `` };
   const store = createStore(``, initialState, {
-    $$init: (state) => state,
-    $$reset: (state) => state,
-    reducer: (state): State => ({ ...state }),
+    $$init: () => ({}),
+    $$reset: () => ({}),
+    reducer: (): Patch<State> => ({}),
   });
   usePropSelectorAll(store.prop, [`0`, Symbol()]);
   usePropSelectorAll(store.prop, (state) => state.prop === ``);
@@ -44,9 +45,9 @@ import { createStoreRegistry } from '../../src';
   type State = { prop: string };
   const initialState: State = { prop: `` };
   const store = createStore(``, initialState, {
-    $$init: (state) => state,
-    $$reset: (state) => state,
-    reducer: (state): State => ({ ...state }),
+    $$init: () => ({}),
+    $$reset: () => ({}),
+    reducer: (): Patch<State> => ({}),
   });
   const selectPropAll = usePropSelectorAll(store.prop);
   ((_selectPropAll: () => [InstanceKey, string][]) => null)(selectPropAll);

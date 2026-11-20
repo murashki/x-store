@@ -3,6 +3,7 @@ import { useState } from 'react';
 import React from 'react';
 
 import type { InstanceKey } from '../lib/src';
+import type { Patch } from '../lib/src';
 import { createStore } from '../lib/src';
 import { StoreProvider } from '../lib/src';
 import { useProp } from '../lib/src';
@@ -18,14 +19,13 @@ const initialLabelState: LabelState = {
 };
 
 const labelStore = createStore(`label`, initialLabelState, {
-  $$init: (state): LabelState => {
+  $$init: (state): Patch<LabelState> => {
     return {
-      ...state,
       label: `${state.label} (после $$init)`,
     };
   },
-  $$reset: (state): LabelState => {
-    return state;
+  $$reset: (): Patch<LabelState> => {
+    return {};
   },
 });
 

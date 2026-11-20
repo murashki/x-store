@@ -1,5 +1,5 @@
 import { INTERNAL_STORE_PROPS_ACCESSOR } from '../constants.tsx';
-import { STATE_LINK } from '../constants.tsx';
+import { STATE_LINK_FLAG } from '../constants.tsx';
 import type { InternalStoreProps } from './InternalStoreProps.tsx';
 import type { ReducerMap } from './ReducerMap.tsx';
 import type { StoreState } from './StoreState.tsx';
@@ -12,5 +12,5 @@ export type StateLink<
 > = {
   [INTERNAL_STORE_PROPS_ACCESSOR]: InternalStoreProps<TStoreName, TStoreState, TReducerMap>;
   stateName: TStateName,
-  type: typeof STATE_LINK,
+  type: typeof STATE_LINK_FLAG,
 };

@@ -22,8 +22,8 @@ import { createStore } from '../../src';
   type State = { prop: string };
   const initialState: State = { prop: `` };
   createStore(``, initialState, {
-    $$init: (state) => state,
-    $$reset: (state) => state,
+    $$init: () => ({}),
+    $$reset: () => ({}),
   });
 }
 
@@ -32,16 +32,16 @@ import { createStore } from '../../src';
   const initialState: State = { prop: `` };
   // @ts-expect-error
   createStore(null, initialState, {
-    $$init: (state) => state,
-    $$reset: (state) => state,
+    $$init: () => ({}),
+    $$reset: () => ({}),
   });
 }
 
 {
   // @ts-expect-error
   createStore(``, null, {
-    $$init: (state: any) => state,
-    $$reset: (state: any) => state,
+    $$init: () => ({}),
+    $$reset: () => ({}),
   });
 }
 
@@ -57,7 +57,7 @@ import { createStore } from '../../src';
   const initialState: State = { prop: `` };
   // @ts-expect-error
   createStore(``, initialState, {
-    $$reset: (state) => state,
+    $$reset: () => ({}),
   });
 }
 
@@ -66,7 +66,7 @@ import { createStore } from '../../src';
   const initialState: State = { prop: `` };
   // @ts-expect-error
   createStore(``, initialState, {
-    $$init: (state) => state,
+    $$init: () => ({}),
   });
 }
 
@@ -75,8 +75,8 @@ import { createStore } from '../../src';
   const initialState: State = { prop: `` };
   createStore(``, initialState, {
     // @ts-expect-error
-    $$init: (state, payload: State) => ({ ...state, ...payload }),
-    $$reset: (state) => state,
+    $$init: (state, payload: State) => ({ ...payload }),
+    $$reset: () => ({}),
   });
 }
 
@@ -84,8 +84,8 @@ import { createStore } from '../../src';
   type State = { prop: string };
   const initialState: State = { prop: `` };
   createStore(``, initialState, {
-    $$init: (state, payload: Partial<State>) => ({ ...state, ...payload }),
-    $$reset: (state) => state,
+    $$init: (state, payload: Partial<State>) => ({ ...payload }),
+    $$reset: () => ({}),
   });
 }
 
@@ -94,8 +94,8 @@ import { createStore } from '../../src';
   const initialState: State = { prop: `` };
   createStore(``, initialState, {
     // @ts-expect-error
-    $$init: (state, payload: string) => ({ ...state, prop: payload }),
-    $$reset: (state) => state,
+    $$init: (state, payload: string) => ({ prop: payload }),
+    $$reset: () => ({}),
   });
 }
 
@@ -105,7 +105,7 @@ import { createStore } from '../../src';
   createStore(``, initialState, {
     // @ts-expect-error
     $$init: () => null,
-    $$reset: (state) => state,
+    $$reset: () => ({}),
   });
 }
 
@@ -113,9 +113,9 @@ import { createStore } from '../../src';
   type State = { prop: string };
   const initialState: State = { prop: `` };
   createStore(``, initialState, {
-    $$init: (state) => state,
+    $$init: () => ({}),
     // @ts-expect-error
-    $$reset: (state, payload: Partial<State>) => ({ ...state, ...payload }),
+    $$reset: (state, payload: Partial<State>) => ({ ...payload }),
   });
 }
 
@@ -123,9 +123,9 @@ import { createStore } from '../../src';
   type State = { prop: string };
   const initialState: State = { prop: `` };
   createStore(``, initialState, {
-    $$init: (state) => state,
+    $$init: () => ({}),
     // @ts-expect-error
-    $$reset: (state, payload: string) => ({ ...state, prop: payload }),
+    $$reset: (state, payload: string) => ({ prop: payload }),
   });
 }
 
@@ -133,7 +133,7 @@ import { createStore } from '../../src';
   type State = { prop: string };
   const initialState: State = { prop: `` };
   createStore(``, initialState, {
-    $$init: (state) => state,
+    $$init: () => ({}),
     // @ts-expect-error
     $$reset: () => null,
   });
@@ -143,10 +143,10 @@ import { createStore } from '../../src';
   type State = { prop: string };
   const initialState: State = { prop: `` };
   createStore(``, initialState, {
-    $$init: (state) => state,
-    $$reset: (state) => state,
+    $$init: () => ({}),
+    $$reset: () => ({}),
     // @ts-expect-error
-    prop: (state) => ({ ...state }),
+    prop: () => ({}),
   });
 }
 
@@ -154,9 +154,9 @@ import { createStore } from '../../src';
   type State = { prop: string };
   const initialState: State = { prop: `` };
   createStore(``, initialState, {
-    $$init: (state) => state,
-    $$reset: (state) => state,
-    reducer: (state) => ({ ...state }),
+    $$init: () => ({}),
+    $$reset: () => ({}),
+    reducer: () => ({}),
   });
 }
 
@@ -164,9 +164,9 @@ import { createStore } from '../../src';
   type State = { prop: string };
   const initialState: State = { prop: `` };
   createStore(``, initialState, {
-    $$init: (state) => state,
-    $$reset: (state) => state,
-    reducer: (state, payload: { prop: string }) => ({ ...state, prop: payload.prop }),
+    $$init: () => ({}),
+    $$reset: () => ({}),
+    reducer: (state, payload: { prop: string }) => ({ prop: payload.prop }),
   });
 }
 
@@ -174,10 +174,10 @@ import { createStore } from '../../src';
   type State = { prop: string };
   const initialState: State = { prop: `` };
   createStore(``, initialState, {
-    $$init: (state) => state,
-    $$reset: (state) => state,
+    $$init: () => ({}),
+    $$reset: () => ({}),
     // @ts-expect-error
-    reducer: (state, payload: string) => ({ ...state, prop: payload }),
+    reducer: (state, payload: string) => ({ prop: payload }),
   });
 }
 
@@ -185,8 +185,66 @@ import { createStore } from '../../src';
   type State = { prop: string };
   const initialState: State = { prop: `` };
   createStore(``, initialState, {
-    $$init: (state) => state,
-    $$reset: (state) => state,
+    $$init: () => ({}),
+    $$reset: () => ({}),
+    // @ts-expect-error
+    reducer: (state, payload: string[]) => ({ prop: payload[0] }),
+  });
+}
+
+{
+  type State = { prop: string };
+  const initialState: State = { prop: `` };
+  createStore(``, initialState, {
+    $$init: () => ({}),
+    $$reset: () => ({}),
+    // @ts-expect-error
+    reducer: (state, payload?: { prop: string }) => ({ prop: payload?.prop }),
+  });
+}
+
+{
+  type State = { prop: string };
+  const initialState: State = { prop: `` };
+  createStore(``, initialState, {
+    $$init: () => ({}),
+    $$reset: () => ({}),
+    // @ts-expect-error
+    reducer: (state, payload: string | { prop: string }) => ({ prop: String(payload) }),
+  });
+}
+
+{
+  type State = { prop: string };
+  const initialState: State = { prop: `` };
+  createStore(``, initialState, {
+    $$init: () => ({}),
+    $$reset: () => ({}),
+    // @ts-expect-error
+    reducer: (state, payload: null) => ({ prop: String(payload) }),
+  });
+}
+
+{
+  type State = { prop: string };
+  const initialState: State = { prop: `` };
+  createStore(``, initialState, {
+    $$init: () => ({}),
+    $$reset: () => ({}),
+    reducerA: (state, payload: { propA: string } | { propB: string }) => ({ prop: String(payload) }),
+    reducerB: (state, payload: { prop?: string }) => ({ prop: payload.prop }),
+    reducerC: (state, payload: void) => ({ prop: String(payload) }),
+    reducerD: (state) => ({ prop: state.prop }),
+    reducerE: () => ({}),
+  });
+}
+
+{
+  type State = { prop: string };
+  const initialState: State = { prop: `` };
+  createStore(``, initialState, {
+    $$init: () => ({}),
+    $$reset: () => ({}),
     // @ts-expect-error
     reducer: () => null,
   });
@@ -195,10 +253,21 @@ import { createStore } from '../../src';
 {
   type State = { prop: string };
   const initialState: State = { prop: `` };
+  createStore(``, initialState, {
+    $$init: () => ({}),
+    $$reset: () => ({}),
+    // @ts-expect-error
+    reducer: 0,
+  });
+}
+
+{
+  type State = { prop: string };
+  const initialState: State = { prop: `` };
   const store = createStore(``, initialState, {
-    $$init: (state) => state,
-    $$reset: (state) => state,
-    reducer: (state) => state,
+    $$init: () => ({}),
+    $$reset: () => ({}),
+    reducer: () => ({}),
   });
   ((_value: void) => null)(store.$$init);
   ((_value: void) => null)(store.$$reset);
@@ -216,8 +285,8 @@ import { createStore } from '../../src';
     // @ts-expect-error
     initialState,
     {
-      $$init: (state) => state,
-      $$reset: (state) => state,
+      $$init: () => ({}),
+      $$reset: () => ({}),
     },
   );
 }
@@ -226,10 +295,10 @@ import { createStore } from '../../src';
   type State = { prop: string };
   const initialState: State = { prop: `` };
   createStore(``, initialState, {
-    $$init: (state) => state,
+    $$init: () => ({}),
     // @ts-expect-error
-    $$initialized: (state) => state,
-    $$reset: (state) => state,
+    $$initialized: () => ({}),
+    $$reset: () => ({}),
   });
 }
 
@@ -240,17 +309,17 @@ import { createStore } from '../../src';
     $$init: (state) => {
       // @ts-expect-error
       ((_initialized: boolean) => null)(state.$$initialized);
-      return state;
+      return {};
     },
     $$reset: (state) => {
       // @ts-expect-error
       ((_initialized: boolean) => null)(state.$$initialized);
-      return state;
+      return {};
     },
     reducer: (state) => {
       // @ts-expect-error
       ((_initialized: boolean) => null)(state.$$initialized);
-      return state;
+      return {};
     },
   });
 }
@@ -263,8 +332,8 @@ import { createStore } from '../../src';
     // @ts-expect-error
     initialState,
     {
-      $$init: (state) => state,
-      $$reset: (state) => state,
+      $$init: () => ({}),
+      $$reset: () => ({}),
     },
   );
 }
@@ -273,10 +342,10 @@ import { createStore } from '../../src';
   type State = { prop: string };
   const initialState: State = { prop: `` };
   createStore(``, initialState, {
-    $$init: (state) => state,
+    $$init: () => ({}),
     // @ts-expect-error
-    $$instanceKey: (state) => state,
-    $$reset: (state) => state,
+    $$instanceKey: () => ({}),
+    $$reset: () => ({}),
   });
 }
 
@@ -287,17 +356,17 @@ import { createStore } from '../../src';
     $$init: (state) => {
       // @ts-expect-error
       ((_instanceKey: InstanceKey) => null)(state.$$instanceKey);
-      return state;
+      return {};
     },
     $$reset: (state) => {
       // @ts-expect-error
       ((_instanceKey: InstanceKey) => null)(state.$$instanceKey);
-      return state;
+      return {};
     },
     reducer: (state) => {
       // @ts-expect-error
       ((_instanceKey: InstanceKey) => null)(state.$$instanceKey);
-      return state;
+      return {};
     },
   });
 }

@@ -1,3 +1,4 @@
+import type { Patch } from '../../src';
 import { createStore } from '../../src';
 import { createStoreRegistry } from '../../src';
 
@@ -6,10 +7,10 @@ import { createStoreRegistry } from '../../src';
   type State = { prop: string };
   const initialState: State = { prop: `` };
   const store = createStore(``, initialState, {
-    $$init: (state) => state,
-    $$reset: (state) => state,
-    reducerA: (state): State => ({ ...state }),
-    reducerB: (state): State => ({ ...state }),
+    $$init: () => ({}),
+    $$reset: () => ({}),
+    reducerA: (): Patch<State> => ({}),
+    reducerB: (): Patch<State> => ({}),
   });
   useLatest((actionName) => {
     ((_actionName: `reducerA`) => null)(actionName);

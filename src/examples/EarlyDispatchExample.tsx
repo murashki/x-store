@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import React from 'react';
 
+import type { Patch } from '../lib/src';
 import { createStore } from '../lib/src';
 import { StoreProvider } from '../lib/src';
 import { useDispatcher } from '../lib/src';
@@ -17,22 +18,20 @@ const initialProductState: ProductState = {
 };
 
 const productStore = createStore(`product`, initialProductState, {
-  $$init: (state): ProductState => {
-    return state;
+  $$init: (): Patch<ProductState> => {
+    return {};
   },
-  $$reset: (state): ProductState => {
-    return state;
+  $$reset: (): Patch<ProductState> => {
+    return {};
   },
-  requestDone: (state, payload: RequestDonePayload): ProductState => {
+  requestDone: (state, payload: RequestDonePayload): Patch<ProductState> => {
     return {
-      ...state,
       productName: payload.productName,
       requestStatus: `done`,
     };
   },
-  requestStart: (state): ProductState => {
+  requestStart: (): Patch<ProductState> => {
     return {
-      ...state,
       requestStatus: `loading`,
     };
   },

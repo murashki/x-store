@@ -1,14 +1,16 @@
 import type { InstanceKey } from './types/InstanceKey.tsx';
 import type { StoreState } from './types/StoreState.tsx';
+import type { Unlocked } from './types/Unlocked.tsx';
+import type { UnlockedState } from './types/UnlockedState.tsx';
 
 export function pickPropAll<
   TStoreState extends StoreState = StoreState,
   TStateName extends keyof TStoreState = keyof TStoreState,
 >(
-  stateAll: Record<InstanceKey, TStoreState>,
+  stateAll: Record<InstanceKey, UnlockedState<TStoreState>>,
   stateName: TStateName,
-  instanceKeys?: InstanceKey[] | ((state: TStoreState) => boolean),
-): [instanceKey: InstanceKey, state: TStoreState[TStateName]][] {
+  instanceKeys?: InstanceKey[] | ((state: UnlockedState<TStoreState>) => boolean),
+): [instanceKey: InstanceKey, state: Unlocked<TStoreState[TStateName]>][] {
   let actualInstanceKeys: InstanceKey[];
   if (instanceKeys == null) {
     actualInstanceKeys = [...Object.keys(stateAll), ...Object.getOwnPropertySymbols(stateAll)];
@@ -24,7 +26,7 @@ export function pickPropAll<
     });
   }
 
-  return actualInstanceKeys.map((instanceKey): [instanceKey: InstanceKey, state: TStoreState[TStateName]] => {
+  return actualInstanceKeys.map((instanceKey): [instanceKey: InstanceKey, state: Unlocked<TStoreState[TStateName]>] => {
     return [instanceKey, stateAll[instanceKey][stateName]];
   });
 }

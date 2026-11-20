@@ -3,6 +3,7 @@ import { useRef } from 'react';
 import React from 'react';
 
 import type { InstanceKey } from '../lib/src';
+import type { Patch } from '../lib/src';
 import { createStore } from '../lib/src';
 import { useDispatcher } from '../lib/src';
 import { useProp } from '../lib/src';
@@ -18,15 +19,14 @@ const initialCounterState: CounterState = {
 };
 
 const counterStore = createStore(`counter`, initialCounterState, {
-  $$init: (state): CounterState => {
-    return state;
+  $$init: (): Patch<CounterState> => {
+    return {};
   },
-  $$reset: (state): CounterState => {
-    return state;
+  $$reset: (): Patch<CounterState> => {
+    return {};
   },
-  increment: (state): CounterState => {
+  increment: (state): Patch<CounterState> => {
     return {
-      ...state,
       count: state.count + 1,
     };
   },
@@ -58,6 +58,7 @@ export const App = React.memo(function App() {
         />
       ))}
       <SummaryLogger />
+      <IncorrectSummaryLogger />
     </div>
   );
 });
@@ -111,5 +112,15 @@ const SummaryLogger = React.memo(function SummaryLogger() {
         Log all counts
       </button>
     </div>
+  );
+});
+
+const IncorrectSummaryLogger = React.memo(function IncorrectSummaryLogger() {
+  const count = useProp(counterStore.count, `a`);
+  // Некорректное использование. Так делать не надо.
+  const selectCountAll = usePropSelectorAll({ ...counterStore.count });
+
+  return (
+    <div>IncorrectSummaryLogger a: {count}, selected: {selectCountAll().length}</div>
   );
 });

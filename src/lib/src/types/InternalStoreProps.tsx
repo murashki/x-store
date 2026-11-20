@@ -3,6 +3,7 @@ import React from 'react';
 import type { ReducerMap } from './ReducerMap.tsx';
 import type { StoreContextValue } from './StoreContextValue.tsx';
 import type { StoreState } from './StoreState.tsx';
+import type { UnlockedState } from './UnlockedState.tsx';
 
 export type InternalStoreProps<
   TStoreName extends string = string,
@@ -13,6 +14,8 @@ export type InternalStoreProps<
   $$reset: TReducerMap[`$$reset`];
   context: React.Context<null | StoreContextValue<TStoreState>>;
   initialState: TStoreState;
+  lockedStateNames: string[];
   name: TStoreName;
   uniqKey: symbol;
+  unlockedInitialState: UnlockedState<TStoreState>;
 };
